@@ -2,7 +2,7 @@
   "name": "sf-ai-toolkit",
   "displayName": "SF AI Toolkit",
   "description": "Make every Salesforce DX project AI-ready in minutes. Scaffolds secure cross-tool workflows for Cursor, Claude, Codex-style agents, Antigravity, and MCP-powered Salesforce delivery.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "publisher": "NikhilKarkra",
   "license": "MIT",
   "repository": {

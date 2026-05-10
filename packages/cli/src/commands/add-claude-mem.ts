@@ -51,7 +51,7 @@ export function addClaudeMemCommand(): Command {
       console.log('');
       ui.info('To activate this mode in claude-mem:');
       ui.item(`  1. Copy docs/claude-mem/salesforce-dx.json to your claude-mem plugin/modes/ folder.`);
-      ui.item(`  2. Or use: ai-kit-sf add-claude-mem --claude-mem-dir ~/.claude-mem/plugin/modes/`);
+      ui.item(`  2. Or use: sf-ai-toolkit add-claude-mem --claude-mem-dir ~/.claude-mem/plugin/modes/`);
       ui.item(`  3. Set mode in claude-mem settings: "salesforce-dx"`);
       ui.item(`  4. Restart Claude Code.`);
       console.log('');

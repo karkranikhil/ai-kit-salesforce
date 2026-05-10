@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke test for ai-kit-sf CLI against a synthetic Salesforce DX project.
+ * Smoke test for sf-ai-toolkit CLI against a synthetic Salesforce DX project.
  * Run: node scripts/smoke-test.mjs
  */
 
@@ -75,7 +75,7 @@ assert(
 
 // ─── Scan ─────────────────────────────────────────────────────────────────────
 
-section('ai-kit-sf scan');
+section('sf-ai-toolkit scan');
 
 let scanOutput = '';
 try {
@@ -99,7 +99,7 @@ assert(
 
 // ─── Init (dry-run via planSetup check) ───────────────────────────────────────
 
-section('ai-kit-sf init (core preset)');
+section('sf-ai-toolkit init (core preset)');
 
 let initOutput = '';
 try {
@@ -259,7 +259,7 @@ assert('Detects inline onclick string', lwcHtmlRuleIds.includes('no-onclick-inli
 
 // ─── Deploy preview ────────────────────────────────────────────────────────────
 
-section('ai-kit-sf deploy-preview');
+section('sf-ai-toolkit deploy-preview');
 
 let deployOutput = '';
 try {
@@ -284,7 +284,7 @@ assert(
 
 // ─── Agentforce scan ──────────────────────────────────────────────────────────
 
-section('ai-kit-sf agentforce-scan');
+section('sf-ai-toolkit agentforce-scan');
 
 let agentOutput = '';
 try {
@@ -303,7 +303,7 @@ assert(
 
 // ─── Drift check ─────────────────────────────────────────────────────────────
 
-section('ai-kit-sf check-drift');
+section('sf-ai-toolkit check-drift');
 
 let driftOutput = '';
 try {

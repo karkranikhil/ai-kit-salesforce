@@ -498,7 +498,7 @@ function buildReportHtml(
   const scoreColor = score >= 80 ? '#4caf50' : score >= 50 ? '#ff9800' : '#f44336';
   const orgBanner = orgCtx.source !== 'none'
     ? `<div class="org-banner">Working against org: <strong>${escapeHtml(orgCtx.defaultOrg ?? 'unknown')}</strong> <span class="dim">(${escapeHtml(orgCtx.source)})</span></div>`
-    : '<div class="org-banner warn">No org context detected — run ai-kit-sf bootstrap-mcp</div>';
+    : '<div class="org-banner warn">No org context detected — run sf-ai-toolkit bootstrap-mcp</div>';
 
   const driftSection = drift.drifted.length > 0
     ? `<div class="section"><h2>⚠ Drift Detected</h2><ul>${drift.drifted.map((d) =>
