@@ -1,0 +1,26 @@
+{
+  "name": "ai-kit-for-salesforce",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Make every Salesforce DX project AI-ready in minutes.",
+  "workspaces": [
+    "packages/core",
+    "packages/cli",
+    "packages/vscode-extension"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
+    "smoke-test": "node scripts/smoke-test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0",
+    "@types/node": "^20.12.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

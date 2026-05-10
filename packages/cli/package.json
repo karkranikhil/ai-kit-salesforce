@@ -1,0 +1,59 @@
+{
+  "name": "@ai-kit-salesforce/cli",
+  "version": "0.1.0",
+  "description": "Make every Salesforce DX project AI-ready in minutes \u2014 scaffolds Cursor rules, Claude Code config, MCP setup, skills, and security guardrails.",
+  "license": "MIT",
+  "author": {
+    "name": "Nikhil Karkra",
+    "url": "https://github.com/karkranikhil"
+  },
+  "homepage": "https://github.com/ai-kit-salesforce/ai-kit-salesforce#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-kit-salesforce/ai-kit-salesforce"
+  },
+  "keywords": [
+    "salesforce",
+    "salesforce-dx",
+    "sfdx",
+    "claude",
+    "cursor",
+    "ai",
+    "mcp",
+    "agentforce",
+    "apex",
+    "lwc",
+    "developer-experience"
+  ],
+  "bin": {
+    "ai-kit-sf": "dist/bundle.js"
+  },
+  "main": "dist/bundle.js",
+  "scripts": {
+    "build": "tsc && ncc build dist/index.js -o dist/bundled -q && node scripts/finalize-bundle.mjs",
+    "build:tsc": "tsc",
+    "dev": "ts-node src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@ai-kit-salesforce/core": "0.1.0",
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/prompts": "^2.4.9",
+    "@vercel/ncc": "^0.38.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "files": [
+    "dist/bundle.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

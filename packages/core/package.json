@@ -1,0 +1,43 @@
+{
+  "name": "@ai-kit-salesforce/core",
+  "version": "0.1.0",
+  "description": "Core engine for AI-Kit for Salesforce \u2014 scanning, planning, safe merging, backups, and file generation.",
+  "license": "MIT",
+  "author": {
+    "name": "Nikhil Karkra",
+    "url": "https://github.com/karkranikhil"
+  },
+  "homepage": "https://github.com/ai-kit-salesforce/ai-kit-salesforce#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-kit-salesforce/ai-kit-salesforce"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "vitest": "^1.6.0",
+    "typescript": "^5.4.5",
+    "@types/node": "^20.12.7"
+  },
+  "files": [
+    "dist/*.js",
+    "dist/*.d.ts",
+    "dist/*.js.map",
+    "dist/*.d.ts.map",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

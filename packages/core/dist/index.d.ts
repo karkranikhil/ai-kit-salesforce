@@ -1,0 +1,27 @@
+export { scanProject } from './scanner';
+export { planSetup } from './planner';
+export { applySetup } from './apply';
+export { createBackup } from './backup';
+export { mergePackageJsonScripts, appendMissingLines, writeFileSafe } from './safe-write';
+export { generateReadinessReport } from './reporter';
+export * from './types';
+export { TEMPLATES, MARKER_START, MARKER_END, getTemplate, hasTemplate, wrapInMarker } from './templates';
+export { readOrgContext, formatOrgContext } from './org-context';
+export type { OrgContext } from './org-context';
+export { detectDrift, checkTeamSync, fetchTeamConfig, FILE_SIGNALS } from './drift-detector';
+export type { DriftResult, DriftedFile, TeamConfig, TeamSyncResult } from './drift-detector';
+export { buildMcpConfig, bootstrapMcp, validateMcpConfig } from './mcp-bootstrap';
+export type { McpBootstrapOptions, McpBootstrapResult, McpValidationResult } from './mcp-bootstrap';
+export { listInstalledSkills, formatSkillReference, skillToPickItem } from './skills-picker';
+export type { InstalledSkill } from './skills-picker';
+export { analyseFile, detectFileType, getDiagnosticSummary } from './inline-diagnostics';
+export type { Diagnostic, FileType } from './inline-diagnostics';
+export { getHoverContent } from './hover-provider';
+export type { HoverContent } from './hover-provider';
+export { buildDeployPreview, formatDeployPreview } from './deploy-preview';
+export type { DeployPreviewOptions, DeployPreviewResult, ComponentInfo } from './deploy-preview';
+export { detectAgentforceContext } from './agentforce-detector';
+export type { AgentforceContext } from './agentforce-detector';
+export { generateClaudeMemModeJson, SALESFORCE_DX_MODE } from './claude-mem-mode';
+export type { ClaudeMemMode } from './claude-mem-mode';
+//# sourceMappingURL=index.d.ts.map

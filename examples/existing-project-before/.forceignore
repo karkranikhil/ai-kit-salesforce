@@ -1,0 +1,11 @@
+
+.env
+.env.*
+.sf/
+.sfdx/
+node_modules/
+coverage/
+.localdevserver/
+**/profiles/**
+**/installedPackages/**
+**/*.mpd-meta.xml

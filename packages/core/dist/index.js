@@ -1,0 +1,70 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SALESFORCE_DX_MODE = exports.generateClaudeMemModeJson = exports.detectAgentforceContext = exports.formatDeployPreview = exports.buildDeployPreview = exports.getHoverContent = exports.getDiagnosticSummary = exports.detectFileType = exports.analyseFile = exports.skillToPickItem = exports.formatSkillReference = exports.listInstalledSkills = exports.validateMcpConfig = exports.bootstrapMcp = exports.buildMcpConfig = exports.FILE_SIGNALS = exports.fetchTeamConfig = exports.checkTeamSync = exports.detectDrift = exports.formatOrgContext = exports.readOrgContext = exports.wrapInMarker = exports.hasTemplate = exports.getTemplate = exports.MARKER_END = exports.MARKER_START = exports.TEMPLATES = exports.generateReadinessReport = exports.writeFileSafe = exports.appendMissingLines = exports.mergePackageJsonScripts = exports.createBackup = exports.applySetup = exports.planSetup = exports.scanProject = void 0;
+var scanner_1 = require("./scanner");
+Object.defineProperty(exports, "scanProject", { enumerable: true, get: function () { return scanner_1.scanProject; } });
+var planner_1 = require("./planner");
+Object.defineProperty(exports, "planSetup", { enumerable: true, get: function () { return planner_1.planSetup; } });
+var apply_1 = require("./apply");
+Object.defineProperty(exports, "applySetup", { enumerable: true, get: function () { return apply_1.applySetup; } });
+var backup_1 = require("./backup");
+Object.defineProperty(exports, "createBackup", { enumerable: true, get: function () { return backup_1.createBackup; } });
+var safe_write_1 = require("./safe-write");
+Object.defineProperty(exports, "mergePackageJsonScripts", { enumerable: true, get: function () { return safe_write_1.mergePackageJsonScripts; } });
+Object.defineProperty(exports, "appendMissingLines", { enumerable: true, get: function () { return safe_write_1.appendMissingLines; } });
+Object.defineProperty(exports, "writeFileSafe", { enumerable: true, get: function () { return safe_write_1.writeFileSafe; } });
+var reporter_1 = require("./reporter");
+Object.defineProperty(exports, "generateReadinessReport", { enumerable: true, get: function () { return reporter_1.generateReadinessReport; } });
+__exportStar(require("./types"), exports);
+var templates_1 = require("./templates");
+Object.defineProperty(exports, "TEMPLATES", { enumerable: true, get: function () { return templates_1.TEMPLATES; } });
+Object.defineProperty(exports, "MARKER_START", { enumerable: true, get: function () { return templates_1.MARKER_START; } });
+Object.defineProperty(exports, "MARKER_END", { enumerable: true, get: function () { return templates_1.MARKER_END; } });
+Object.defineProperty(exports, "getTemplate", { enumerable: true, get: function () { return templates_1.getTemplate; } });
+Object.defineProperty(exports, "hasTemplate", { enumerable: true, get: function () { return templates_1.hasTemplate; } });
+Object.defineProperty(exports, "wrapInMarker", { enumerable: true, get: function () { return templates_1.wrapInMarker; } });
+var org_context_1 = require("./org-context");
+Object.defineProperty(exports, "readOrgContext", { enumerable: true, get: function () { return org_context_1.readOrgContext; } });
+Object.defineProperty(exports, "formatOrgContext", { enumerable: true, get: function () { return org_context_1.formatOrgContext; } });
+var drift_detector_1 = require("./drift-detector");
+Object.defineProperty(exports, "detectDrift", { enumerable: true, get: function () { return drift_detector_1.detectDrift; } });
+Object.defineProperty(exports, "checkTeamSync", { enumerable: true, get: function () { return drift_detector_1.checkTeamSync; } });
+Object.defineProperty(exports, "fetchTeamConfig", { enumerable: true, get: function () { return drift_detector_1.fetchTeamConfig; } });
+Object.defineProperty(exports, "FILE_SIGNALS", { enumerable: true, get: function () { return drift_detector_1.FILE_SIGNALS; } });
+var mcp_bootstrap_1 = require("./mcp-bootstrap");
+Object.defineProperty(exports, "buildMcpConfig", { enumerable: true, get: function () { return mcp_bootstrap_1.buildMcpConfig; } });
+Object.defineProperty(exports, "bootstrapMcp", { enumerable: true, get: function () { return mcp_bootstrap_1.bootstrapMcp; } });
+Object.defineProperty(exports, "validateMcpConfig", { enumerable: true, get: function () { return mcp_bootstrap_1.validateMcpConfig; } });
+var skills_picker_1 = require("./skills-picker");
+Object.defineProperty(exports, "listInstalledSkills", { enumerable: true, get: function () { return skills_picker_1.listInstalledSkills; } });
+Object.defineProperty(exports, "formatSkillReference", { enumerable: true, get: function () { return skills_picker_1.formatSkillReference; } });
+Object.defineProperty(exports, "skillToPickItem", { enumerable: true, get: function () { return skills_picker_1.skillToPickItem; } });
+var inline_diagnostics_1 = require("./inline-diagnostics");
+Object.defineProperty(exports, "analyseFile", { enumerable: true, get: function () { return inline_diagnostics_1.analyseFile; } });
+Object.defineProperty(exports, "detectFileType", { enumerable: true, get: function () { return inline_diagnostics_1.detectFileType; } });
+Object.defineProperty(exports, "getDiagnosticSummary", { enumerable: true, get: function () { return inline_diagnostics_1.getDiagnosticSummary; } });
+var hover_provider_1 = require("./hover-provider");
+Object.defineProperty(exports, "getHoverContent", { enumerable: true, get: function () { return hover_provider_1.getHoverContent; } });
+var deploy_preview_1 = require("./deploy-preview");
+Object.defineProperty(exports, "buildDeployPreview", { enumerable: true, get: function () { return deploy_preview_1.buildDeployPreview; } });
+Object.defineProperty(exports, "formatDeployPreview", { enumerable: true, get: function () { return deploy_preview_1.formatDeployPreview; } });
+var agentforce_detector_1 = require("./agentforce-detector");
+Object.defineProperty(exports, "detectAgentforceContext", { enumerable: true, get: function () { return agentforce_detector_1.detectAgentforceContext; } });
+var claude_mem_mode_1 = require("./claude-mem-mode");
+Object.defineProperty(exports, "generateClaudeMemModeJson", { enumerable: true, get: function () { return claude_mem_mode_1.generateClaudeMemModeJson; } });
+Object.defineProperty(exports, "SALESFORCE_DX_MODE", { enumerable: true, get: function () { return claude_mem_mode_1.SALESFORCE_DX_MODE; } });
+//# sourceMappingURL=index.js.map

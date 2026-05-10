@@ -1,0 +1,21 @@
+<template>
+    <lightning-card title="Account Details">
+        <!-- Anti-pattern 1: for:each without key -->
+        <template for:each={account.data.Contacts} for:item="contact">
+            <p>{contact.Name}</p>
+        </template>
+
+        <!-- Anti-pattern 2: inline onclick string -->
+        <button onclick="handleEdit()">Edit</button>
+
+        <!-- Anti-pattern 3: aura syntax in LWC -->
+        <aura:if isTrue="{!v.showDetails}">
+            <p class="content"></p>
+        </aura:if>
+
+        <!-- Correct pattern for reference -->
+        <template lwc:if={showFooter}>
+            <p>Footer content</p>
+        </template>
+    </lightning-card>
+</template>

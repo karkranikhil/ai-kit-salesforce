@@ -1,0 +1,140 @@
+{
+  "name": "ai-kit-salesforce",
+  "displayName": "AI-Kit for Salesforce",
+  "description": "Make every Salesforce DX project AI-ready in minutes. Scaffolds Cursor rules, Claude Code config, MCP setup, Apex/LWC inline diagnostics, Agentforce context detection, and security guardrails.",
+  "version": "0.1.0",
+  "publisher": "ai-kit-salesforce",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-kit-salesforce/ai-kit-salesforce"
+  },
+  "bugs": {
+    "url": "https://github.com/ai-kit-salesforce/ai-kit-salesforce/issues"
+  },
+  "homepage": "https://github.com/ai-kit-salesforce/ai-kit-salesforce#readme",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#00A1E0",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Linters",
+    "Snippets"
+  ],
+  "keywords": [
+    "salesforce",
+    "salesforce dx",
+    "sfdx",
+    "claude",
+    "cursor",
+    "ai",
+    "mcp",
+    "agentforce",
+    "apex",
+    "lwc"
+  ],
+  "activationEvents": [
+    "workspaceContains:sfdx-project.json",
+    "onCommand:ai-kit-sf.scan"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ai-kit-sf.scan",
+        "title": "AI-Kit: Scan Salesforce Project"
+      },
+      {
+        "command": "ai-kit-sf.init",
+        "title": "AI-Kit: Apply Recommended Setup"
+      },
+      {
+        "command": "ai-kit-sf.openReport",
+        "title": "AI-Kit: Open Readiness Report"
+      },
+      {
+        "command": "ai-kit-sf.addCursor",
+        "title": "AI-Kit: Add Cursor Rules"
+      },
+      {
+        "command": "ai-kit-sf.addCursorSkills",
+        "title": "AI-Kit: Add Cursor Skills"
+      },
+      {
+        "command": "ai-kit-sf.addClaude",
+        "title": "AI-Kit: Add Claude Code Setup"
+      },
+      {
+        "command": "ai-kit-sf.addMcp",
+        "title": "AI-Kit: Add MCP Guardrails"
+      },
+      {
+        "command": "ai-kit-sf.addJagsSkills",
+        "title": "AI-Kit: Add Jag-Compatible Skills"
+      },
+      {
+        "command": "ai-kit-sf.addAfvLibrary",
+        "title": "AI-Kit: Add Salesforce AFV Library Guide"
+      },
+      {
+        "command": "ai-kit-sf.bootstrapMcp",
+        "title": "AI-Kit: Bootstrap MCP Config"
+      },
+      {
+        "command": "ai-kit-sf.checkDrift",
+        "title": "AI-Kit: Check Template Drift"
+      },
+      {
+        "command": "ai-kit-sf.addClaudeMem",
+        "title": "AI-Kit: Add claude-mem Salesforce Mode"
+      },
+      {
+        "command": "ai-kit-sf.pickSkill",
+        "title": "AI-Kit: Insert Skill Reference"
+      },
+      {
+        "command": "ai-kit-sf.checkTeamSync",
+        "title": "AI-Kit: Check Team Sync"
+      }
+    ],
+    "configuration": {
+      "title": "AI-Kit for Salesforce",
+      "properties": {
+        "ai-kit-salesforce.teamConfigUrl": {
+          "type": "string",
+          "default": "",
+          "description": "URL to your team AI-Kit config JSON for drift detection on project open"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc && ncc build dist/extension.js -o dist/bundled -q --external vscode && node scripts/finalize-extension.mjs",
+    "watch": "tsc -watch",
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package --no-dependencies",
+    "publish": "vsce publish --no-dependencies",
+    "build:tsc": "tsc"
+  },
+  "dependencies": {
+    "@ai-kit-salesforce/core": "*",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.12.7",
+    "@types/vscode": "^1.85.0",
+    "@vercel/ncc": "^0.38.4",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.4.5"
+  },
+  "author": {
+    "name": "Nikhil Karkra",
+    "url": "https://github.com/karkranikhil"
+  }
+}
