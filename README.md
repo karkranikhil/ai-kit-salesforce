@@ -87,31 +87,31 @@ AI-Kit for Salesforce is a VS Code/Cursor extension and CLI tool that scaffolds 
 
 ```bash
 # Scan your project
-npx ai-kit-sf scan
+npx @ai-kit-salesforce/cli scan
 
 # Full setup with recommended defaults
-npx ai-kit-sf init
+npx @ai-kit-salesforce/cli init
 
 # Non-interactive setup
-npx ai-kit-sf init --preset core --yes
+npx @ai-kit-salesforce/cli init --preset core --yes
 
 # Dry run (no changes)
-npx ai-kit-sf init --preset core --dry-run
+npx @ai-kit-salesforce/cli init --preset core --dry-run
 
 # One-command MCP config
-npx ai-kit-sf bootstrap-mcp
+npx @ai-kit-salesforce/cli bootstrap-mcp
 
 # Preview what would deploy
-npx ai-kit-sf deploy-preview
+npx @ai-kit-salesforce/cli deploy-preview
 
 # Scan for Agentforce metadata
-npx ai-kit-sf agentforce-scan
+npx @ai-kit-salesforce/cli agentforce-scan
 
 # Health check
-npx ai-kit-sf doctor
+npx @ai-kit-salesforce/cli doctor
 
 # Check drift
-npx ai-kit-sf check-drift
+npx @ai-kit-salesforce/cli check-drift
 ```
 
 ### Via VS Code / Cursor Extension
@@ -248,7 +248,7 @@ Also safely updates:
 AI-Kit includes full documentation and one-command bootstrap for [Salesforce DX MCP](https://github.com/salesforcecli/mcp-server).
 
 ```bash
-npx ai-kit-sf bootstrap-mcp
+npx @ai-kit-salesforce/cli bootstrap-mcp
 # Prompts for your org alias and writes:
 #   .cursor/mcp.json  (Cursor)
 #   .mcp.json         (Claude Code)
@@ -314,7 +314,7 @@ AI-Kit silently checks on workspace open and shows a notification if drift is de
 ## Agentforce Support
 
 ```bash
-npx ai-kit-sf agentforce-scan
+npx @ai-kit-salesforce/cli agentforce-scan
 ```
 
 Scans `force-app/` and reports:
@@ -331,7 +331,7 @@ Scans `force-app/` and reports:
 AI-Kit generates a [claude-mem](https://github.com/thedotmack/claude-mem) Salesforce DX mode file:
 
 ```bash
-npx ai-kit-sf add-claude-mem
+npx @ai-kit-salesforce/cli add-claude-mem
 # Creates: docs/claude-mem/salesforce-dx.json
 ```
 

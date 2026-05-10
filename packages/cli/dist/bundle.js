@@ -11055,7 +11055,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addAfvLibraryCommand = addAfvLibraryCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 const AFV_FILES = ['docs/afv-library.md', 'docs/skills-ecosystem.md'];
 function addAfvLibraryCommand() {
@@ -11154,7 +11154,7 @@ exports.addClaudeMemCommand = addClaudeMemCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
 const fs = __importStar(__nccwpck_require__(1348));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 function addClaudeMemCommand() {
     return new commander_1.Command('add-claude-mem')
@@ -11249,7 +11249,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addClaudeCommand = addClaudeCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 const CLAUDE_FILES = [
     'AGENTS.md',
@@ -11343,7 +11343,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addCursorCommand = addCursorCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 const CURSOR_FILES = [
     '.cursor/rules/salesforce-mcp.mdc',
@@ -11435,7 +11435,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addJagsSkillsCommand = addJagsSkillsCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 const SKILL_FILES = [
     '.cursor/skills/salesforce-apex/SKILL.md',
@@ -11532,7 +11532,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addMcpCommand = addMcpCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 const MCP_FILES = ['docs/mcp-usage.md', '.cursor/rules/salesforce-mcp.mdc'];
 function addMcpCommand() {
@@ -11614,7 +11614,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.agentforceScanCommand = agentforceScanCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 function agentforceScanCommand() {
     return new commander_1.Command('agentforce-scan')
@@ -11728,7 +11728,7 @@ exports.bootstrapMcpCommand = bootstrapMcpCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
 const prompts_1 = __importDefault(__nccwpck_require__(2171));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 function bootstrapMcpCommand() {
     return new commander_1.Command('bootstrap-mcp')
@@ -11762,7 +11762,7 @@ function bootstrapMcpCommand() {
             orgAlias = response.org;
         }
         if (dryRun) {
-            const { buildMcpConfig } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(6808)));
+            const { buildMcpConfig } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(2349)));
             const config = buildMcpConfig({ orgAlias: orgAlias });
             console.log('');
             ui.warn('Dry run — would write these files:');
@@ -11850,7 +11850,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkDriftCommand = checkDriftCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 function checkDriftCommand() {
     return new commander_1.Command('check-drift')
@@ -11985,7 +11985,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deployPreviewCommand = deployPreviewCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 function deployPreviewCommand() {
     return new commander_1.Command('deploy-preview')
@@ -12155,7 +12155,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.doctorCommand = doctorCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 function doctorCommand() {
     return new commander_1.Command('doctor')
@@ -12290,7 +12290,7 @@ exports.initCommand = initCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
 const prompts_1 = __importDefault(__nccwpck_require__(2171));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 const PRESETS = [
     { title: 'core', value: 'core', description: 'Standard Salesforce DX project' },
@@ -12479,7 +12479,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.pickSkillCommand = pickSkillCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 function pickSkillCommand() {
     return new commander_1.Command('pick-skill')
@@ -12552,7 +12552,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.scanCommand = scanCommand;
 const commander_1 = __nccwpck_require__(7313);
 const path = __importStar(__nccwpck_require__(6928));
-const core_1 = __nccwpck_require__(6808);
+const core_1 = __nccwpck_require__(2349);
 const ui = __importStar(__nccwpck_require__(1244));
 function scanCommand() {
     return new commander_1.Command('scan')
@@ -12633,7 +12633,7 @@ function item(msg) {
 
 /***/ }),
 
-/***/ 4737:
+/***/ 1776:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -12787,7 +12787,7 @@ async function detectAgentforceContext(rootPath) {
 
 /***/ }),
 
-/***/ 6616:
+/***/ 1865:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -12829,9 +12829,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.applySetup = applySetup;
 const path = __importStar(__nccwpck_require__(6928));
 const fs = __importStar(__nccwpck_require__(1348));
-const templates_1 = __nccwpck_require__(9639);
-const safe_write_1 = __nccwpck_require__(6157);
-const backup_1 = __nccwpck_require__(3452);
+const templates_1 = __nccwpck_require__(7410);
+const safe_write_1 = __nccwpck_require__(486);
+const backup_1 = __nccwpck_require__(4039);
 async function applySetup(rootPath, plan) {
     const result = {
         filesCreated: [],
@@ -12923,7 +12923,7 @@ async function applySetup(rootPath, plan) {
 
 /***/ }),
 
-/***/ 3452:
+/***/ 4039:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -12989,7 +12989,7 @@ async function createBackup(rootPath, filePaths) {
 
 /***/ }),
 
-/***/ 3994:
+/***/ 3655:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -13161,7 +13161,7 @@ function generateClaudeMemModeJson() {
 
 /***/ }),
 
-/***/ 3736:
+/***/ 939:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -13209,7 +13209,7 @@ exports.buildDeployPreview = buildDeployPreview;
 exports.formatDeployPreview = formatDeployPreview;
 const fs = __importStar(__nccwpck_require__(1348));
 const path = __importStar(__nccwpck_require__(6928));
-const org_context_1 = __nccwpck_require__(140);
+const org_context_1 = __nccwpck_require__(5885);
 // ─── File extension → component type mapping ──────────────────────────────
 function classifyFile(filePath, relativePath) {
     const basename = path.basename(filePath);
@@ -13424,7 +13424,7 @@ function formatDeployPreview(result) {
 
 /***/ }),
 
-/***/ 4546:
+/***/ 3169:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -13599,7 +13599,7 @@ async function fetchTeamConfig(url) {
 
 /***/ }),
 
-/***/ 5046:
+/***/ 2329:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -13807,7 +13807,7 @@ function getHoverContent(ruleFile, message, ruleId) {
 
 /***/ }),
 
-/***/ 6808:
+/***/ 2349:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -13828,63 +13828,63 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SALESFORCE_DX_MODE = exports.generateClaudeMemModeJson = exports.detectAgentforceContext = exports.formatDeployPreview = exports.buildDeployPreview = exports.getHoverContent = exports.getDiagnosticSummary = exports.detectFileType = exports.analyseFile = exports.skillToPickItem = exports.formatSkillReference = exports.listInstalledSkills = exports.validateMcpConfig = exports.bootstrapMcp = exports.buildMcpConfig = exports.FILE_SIGNALS = exports.fetchTeamConfig = exports.checkTeamSync = exports.detectDrift = exports.formatOrgContext = exports.readOrgContext = exports.wrapInMarker = exports.hasTemplate = exports.getTemplate = exports.MARKER_END = exports.MARKER_START = exports.TEMPLATES = exports.generateReadinessReport = exports.writeFileSafe = exports.appendMissingLines = exports.mergePackageJsonScripts = exports.createBackup = exports.applySetup = exports.planSetup = exports.scanProject = void 0;
-var scanner_1 = __nccwpck_require__(9774);
+var scanner_1 = __nccwpck_require__(6067);
 Object.defineProperty(exports, "scanProject", ({ enumerable: true, get: function () { return scanner_1.scanProject; } }));
-var planner_1 = __nccwpck_require__(5816);
+var planner_1 = __nccwpck_require__(7661);
 Object.defineProperty(exports, "planSetup", ({ enumerable: true, get: function () { return planner_1.planSetup; } }));
-var apply_1 = __nccwpck_require__(6616);
+var apply_1 = __nccwpck_require__(1865);
 Object.defineProperty(exports, "applySetup", ({ enumerable: true, get: function () { return apply_1.applySetup; } }));
-var backup_1 = __nccwpck_require__(3452);
+var backup_1 = __nccwpck_require__(4039);
 Object.defineProperty(exports, "createBackup", ({ enumerable: true, get: function () { return backup_1.createBackup; } }));
-var safe_write_1 = __nccwpck_require__(6157);
+var safe_write_1 = __nccwpck_require__(486);
 Object.defineProperty(exports, "mergePackageJsonScripts", ({ enumerable: true, get: function () { return safe_write_1.mergePackageJsonScripts; } }));
 Object.defineProperty(exports, "appendMissingLines", ({ enumerable: true, get: function () { return safe_write_1.appendMissingLines; } }));
 Object.defineProperty(exports, "writeFileSafe", ({ enumerable: true, get: function () { return safe_write_1.writeFileSafe; } }));
-var reporter_1 = __nccwpck_require__(6591);
+var reporter_1 = __nccwpck_require__(2760);
 Object.defineProperty(exports, "generateReadinessReport", ({ enumerable: true, get: function () { return reporter_1.generateReadinessReport; } }));
-__exportStar(__nccwpck_require__(5117), exports);
-var templates_1 = __nccwpck_require__(9639);
+__exportStar(__nccwpck_require__(9700), exports);
+var templates_1 = __nccwpck_require__(7410);
 Object.defineProperty(exports, "TEMPLATES", ({ enumerable: true, get: function () { return templates_1.TEMPLATES; } }));
 Object.defineProperty(exports, "MARKER_START", ({ enumerable: true, get: function () { return templates_1.MARKER_START; } }));
 Object.defineProperty(exports, "MARKER_END", ({ enumerable: true, get: function () { return templates_1.MARKER_END; } }));
 Object.defineProperty(exports, "getTemplate", ({ enumerable: true, get: function () { return templates_1.getTemplate; } }));
 Object.defineProperty(exports, "hasTemplate", ({ enumerable: true, get: function () { return templates_1.hasTemplate; } }));
 Object.defineProperty(exports, "wrapInMarker", ({ enumerable: true, get: function () { return templates_1.wrapInMarker; } }));
-var org_context_1 = __nccwpck_require__(140);
+var org_context_1 = __nccwpck_require__(5885);
 Object.defineProperty(exports, "readOrgContext", ({ enumerable: true, get: function () { return org_context_1.readOrgContext; } }));
 Object.defineProperty(exports, "formatOrgContext", ({ enumerable: true, get: function () { return org_context_1.formatOrgContext; } }));
-var drift_detector_1 = __nccwpck_require__(4546);
+var drift_detector_1 = __nccwpck_require__(3169);
 Object.defineProperty(exports, "detectDrift", ({ enumerable: true, get: function () { return drift_detector_1.detectDrift; } }));
 Object.defineProperty(exports, "checkTeamSync", ({ enumerable: true, get: function () { return drift_detector_1.checkTeamSync; } }));
 Object.defineProperty(exports, "fetchTeamConfig", ({ enumerable: true, get: function () { return drift_detector_1.fetchTeamConfig; } }));
 Object.defineProperty(exports, "FILE_SIGNALS", ({ enumerable: true, get: function () { return drift_detector_1.FILE_SIGNALS; } }));
-var mcp_bootstrap_1 = __nccwpck_require__(9167);
+var mcp_bootstrap_1 = __nccwpck_require__(1618);
 Object.defineProperty(exports, "buildMcpConfig", ({ enumerable: true, get: function () { return mcp_bootstrap_1.buildMcpConfig; } }));
 Object.defineProperty(exports, "bootstrapMcp", ({ enumerable: true, get: function () { return mcp_bootstrap_1.bootstrapMcp; } }));
 Object.defineProperty(exports, "validateMcpConfig", ({ enumerable: true, get: function () { return mcp_bootstrap_1.validateMcpConfig; } }));
-var skills_picker_1 = __nccwpck_require__(3683);
+var skills_picker_1 = __nccwpck_require__(3434);
 Object.defineProperty(exports, "listInstalledSkills", ({ enumerable: true, get: function () { return skills_picker_1.listInstalledSkills; } }));
 Object.defineProperty(exports, "formatSkillReference", ({ enumerable: true, get: function () { return skills_picker_1.formatSkillReference; } }));
 Object.defineProperty(exports, "skillToPickItem", ({ enumerable: true, get: function () { return skills_picker_1.skillToPickItem; } }));
-var inline_diagnostics_1 = __nccwpck_require__(3970);
+var inline_diagnostics_1 = __nccwpck_require__(4789);
 Object.defineProperty(exports, "analyseFile", ({ enumerable: true, get: function () { return inline_diagnostics_1.analyseFile; } }));
 Object.defineProperty(exports, "detectFileType", ({ enumerable: true, get: function () { return inline_diagnostics_1.detectFileType; } }));
 Object.defineProperty(exports, "getDiagnosticSummary", ({ enumerable: true, get: function () { return inline_diagnostics_1.getDiagnosticSummary; } }));
-var hover_provider_1 = __nccwpck_require__(5046);
+var hover_provider_1 = __nccwpck_require__(2329);
 Object.defineProperty(exports, "getHoverContent", ({ enumerable: true, get: function () { return hover_provider_1.getHoverContent; } }));
-var deploy_preview_1 = __nccwpck_require__(3736);
+var deploy_preview_1 = __nccwpck_require__(939);
 Object.defineProperty(exports, "buildDeployPreview", ({ enumerable: true, get: function () { return deploy_preview_1.buildDeployPreview; } }));
 Object.defineProperty(exports, "formatDeployPreview", ({ enumerable: true, get: function () { return deploy_preview_1.formatDeployPreview; } }));
-var agentforce_detector_1 = __nccwpck_require__(4737);
+var agentforce_detector_1 = __nccwpck_require__(1776);
 Object.defineProperty(exports, "detectAgentforceContext", ({ enumerable: true, get: function () { return agentforce_detector_1.detectAgentforceContext; } }));
-var claude_mem_mode_1 = __nccwpck_require__(3994);
+var claude_mem_mode_1 = __nccwpck_require__(3655);
 Object.defineProperty(exports, "generateClaudeMemModeJson", ({ enumerable: true, get: function () { return claude_mem_mode_1.generateClaudeMemModeJson; } }));
 Object.defineProperty(exports, "SALESFORCE_DX_MODE", ({ enumerable: true, get: function () { return claude_mem_mode_1.SALESFORCE_DX_MODE; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 3970:
+/***/ 4789:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -14253,7 +14253,7 @@ function getDiagnosticSummary(diagnostics) {
 
 /***/ }),
 
-/***/ 9167:
+/***/ 1618:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -14395,7 +14395,7 @@ async function validateMcpConfig(configPath) {
 
 /***/ }),
 
-/***/ 140:
+/***/ 5885:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -14487,7 +14487,7 @@ function formatOrgContext(ctx) {
 
 /***/ }),
 
-/***/ 5816:
+/***/ 7661:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -14529,7 +14529,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.planSetup = planSetup;
 const fs = __importStar(__nccwpck_require__(1348));
 const path = __importStar(__nccwpck_require__(6928));
-const templates_1 = __nccwpck_require__(9639);
+const templates_1 = __nccwpck_require__(7410);
 const RECOMMENDED_SCRIPTS = {
     'lint:lwc': 'eslint force-app/main/default/lwc',
     'format': 'prettier --write "force-app/**/*.{cls,trigger,js,html,css,xml,json}"',
@@ -14656,7 +14656,7 @@ async function planSetup(rootPath, options) {
 
 /***/ }),
 
-/***/ 6591:
+/***/ 2760:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -14738,7 +14738,7 @@ function buildBar(score) {
 
 /***/ }),
 
-/***/ 6157:
+/***/ 486:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -14783,7 +14783,7 @@ exports.mergePackageJsonScripts = mergePackageJsonScripts;
 exports.determineAction = determineAction;
 const fs = __importStar(__nccwpck_require__(1348));
 const path = __importStar(__nccwpck_require__(6928));
-const templates_1 = __nccwpck_require__(9639);
+const templates_1 = __nccwpck_require__(7410);
 async function writeFileSafe(filePath, content, options = {}) {
     const { dryRun = false, overwrite = false, markerLabel } = options;
     const exists = await fs.pathExists(filePath);
@@ -14879,7 +14879,7 @@ function determineAction(filePath, fileExists) {
 
 /***/ }),
 
-/***/ 9774:
+/***/ 6067:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -15138,7 +15138,7 @@ async function scanProject(rootPath) {
 
 /***/ }),
 
-/***/ 3683:
+/***/ 3434:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -15246,7 +15246,7 @@ function skillToPickItem(skill) {
 
 /***/ }),
 
-/***/ 9639:
+/***/ 7410:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -17461,7 +17461,7 @@ function wrapInMarker(content) {
 
 /***/ }),
 
-/***/ 5117:
+/***/ 9700:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";

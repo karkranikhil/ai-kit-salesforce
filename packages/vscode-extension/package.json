@@ -2,17 +2,17 @@
   "name": "ai-kit-salesforce",
   "displayName": "AI-Kit for Salesforce",
   "description": "Make every Salesforce DX project AI-ready in minutes. Scaffolds Cursor rules, Claude Code config, MCP setup, Apex/LWC inline diagnostics, Agentforce context detection, and security guardrails.",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "publisher": "ai-kit-salesforce",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ai-kit-salesforce/ai-kit-salesforce"
+    "url": "https://github.com/karkranikhil/ai-kit-salesforce"
   },
   "bugs": {
-    "url": "https://github.com/ai-kit-salesforce/ai-kit-salesforce/issues"
+    "url": "https://github.com/karkranikhil/ai-kit-salesforce/issues"
   },
-  "homepage": "https://github.com/ai-kit-salesforce/ai-kit-salesforce#readme",
+  "homepage": "https://github.com/karkranikhil/ai-kit-salesforce#readme",
   "icon": "images/icon.png",
   "galleryBanner": {
     "color": "#00A1E0",

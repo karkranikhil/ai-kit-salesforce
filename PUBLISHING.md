@@ -36,6 +36,10 @@ npm publish
 Users can then run:
 ```bash
 npx @ai-kit-salesforce/cli init
+
+# or install globally for the ai-kit-sf command:
+npm install -g @ai-kit-salesforce/cli
+ai-kit-sf init
 ```
 
 ---

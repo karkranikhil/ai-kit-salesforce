@@ -1,16 +1,16 @@
 {
   "name": "@ai-kit-salesforce/cli",
-  "version": "0.1.0",
-  "description": "Make every Salesforce DX project AI-ready in minutes \u2014 scaffolds Cursor rules, Claude Code config, MCP setup, skills, and security guardrails.",
+  "version": "0.1.1",
+  "description": "Make every Salesforce DX project AI-ready in minutes — scaffolds Cursor rules, Claude Code config, MCP setup, skills, and security guardrails.",
   "license": "MIT",
   "author": {
     "name": "Nikhil Karkra",
     "url": "https://github.com/karkranikhil"
   },
-  "homepage": "https://github.com/ai-kit-salesforce/ai-kit-salesforce#readme",
+  "homepage": "https://github.com/karkranikhil/ai-kit-salesforce#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ai-kit-salesforce/ai-kit-salesforce"
+    "url": "https://github.com/karkranikhil/ai-kit-salesforce"
   },
   "keywords": [
     "salesforce",
