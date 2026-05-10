@@ -1,6 +1,6 @@
 {
   "name": "@ai-kit-salesforce/cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Make every Salesforce DX project AI-ready in minutes — scaffolds Cursor rules, Claude Code config, MCP setup, skills, and security guardrails.",
   "license": "MIT",
   "author": {

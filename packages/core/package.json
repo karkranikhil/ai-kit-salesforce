@@ -1,6 +1,6 @@
 {
   "name": "@ai-kit-salesforce/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Core engine for AI-Kit for Salesforce — scanning, planning, safe merging, backups, and file generation.",
   "license": "MIT",
   "author": {
