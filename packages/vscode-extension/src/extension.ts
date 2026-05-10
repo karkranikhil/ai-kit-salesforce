@@ -13,7 +13,8 @@ import {
   generateClaudeMemModeJson,
   checkTeamSync,
   Preset,
-} from '@ai-kit-salesforce/core';
+} from '@sf-ai-toolkit/core';
+import type { SetupPlan } from '@sf-ai-toolkit/core';
 import * as fs from 'fs-extra';
 
 import { DiagnosticsProvider } from './providers/diagnostics-provider';
@@ -37,7 +38,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Hover provider — shows rule explanations on hover
   // We need access to the internal collection; create a shared one
-  const sharedDiagCollection = vscode.languages.createDiagnosticCollection('ai-kit-salesforce-hover');
+  const sharedDiagCollection = vscode.languages.createDiagnosticCollection('sf-ai-toolkit-hover');
   context.subscriptions.push(sharedDiagCollection);
   registerHoverProvider(context, sharedDiagCollection);
 
@@ -58,7 +59,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('ai-kit-sf.addCursorSkills', () => cmdAddFiles('cursor-skills')),
     vscode.commands.registerCommand('ai-kit-sf.addClaude', () => cmdAddFiles('claude')),
     vscode.commands.registerCommand('ai-kit-sf.addMcp', () => cmdAddFiles('mcp')),
-    vscode.commands.registerCommand('ai-kit-sf.addJagsSkills', () => cmdAddFiles('jags-skills')),
+    vscode.commands.registerCommand('ai-kit-sf.addHooks', () => cmdAddHooks()),
+    vscode.commands.registerCommand('ai-kit-sf.addAfvSkills', () => cmdAddFiles('afv-skills')),
     vscode.commands.registerCommand('ai-kit-sf.addAfvLibrary', () => cmdAddFiles('afv-library')),
     vscode.commands.registerCommand('ai-kit-sf.bootstrapMcp', () => cmdBootstrapMcp()),
     vscode.commands.registerCommand('ai-kit-sf.checkDrift', () => cmdCheckDrift()),
@@ -90,6 +92,36 @@ function getRootPath(): string | undefined {
   const folders = vscode.workspace.workspaceFolders;
   if (!folders || folders.length === 0) return undefined;
   return folders[0].uri.fsPath;
+}
+
+function requireTrustedWorkspace(): boolean {
+  if (vscode.workspace.isTrusted) return true;
+  void vscode.window.showWarningMessage(
+    'AI-Kit: This command requires a trusted workspace.'
+  );
+  return false;
+}
+
+function isAllowedTeamConfigUrl(rawUrl: string): boolean {
+  try {
+    const parsed = new URL(rawUrl);
+    return parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderList(items: string[]): string {
+  return items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
 }
 
 async function cmdScan(): Promise<void> {
@@ -125,6 +157,7 @@ async function cmdScan(): Promise<void> {
 }
 
 async function cmdInit(): Promise<void> {
+  if (!requireTrustedWorkspace()) return;
   const rootPath = getRootPath();
   if (!rootPath) {
     vscode.window.showErrorMessage('AI-Kit: No workspace folder open.');
@@ -182,6 +215,7 @@ async function cmdInit(): Promise<void> {
 }
 
 async function cmdBootstrapMcp(): Promise<void> {
+  if (!requireTrustedWorkspace()) return;
   const rootPath = getRootPath();
   if (!rootPath) {
     vscode.window.showErrorMessage('AI-Kit: No workspace folder open.');
@@ -228,6 +262,7 @@ async function cmdBootstrapMcp(): Promise<void> {
 }
 
 async function cmdCheckDrift(): Promise<void> {
+  if (!requireTrustedWorkspace()) return;
   const rootPath = getRootPath();
   if (!rootPath) {
     vscode.window.showErrorMessage('AI-Kit: No workspace folder open.');
@@ -242,7 +277,7 @@ async function cmdCheckDrift(): Promise<void> {
         'ai-kit-drift',
         'AI-Kit Drift Report',
         vscode.ViewColumn.One,
-        {}
+        { enableScripts: false }
       );
       panel.webview.html = buildDriftHtml(drift);
     }
@@ -250,6 +285,7 @@ async function cmdCheckDrift(): Promise<void> {
 }
 
 async function cmdAddClaudeMem(): Promise<void> {
+  if (!requireTrustedWorkspace()) return;
   const rootPath = getRootPath();
   if (!rootPath) {
     vscode.window.showErrorMessage('AI-Kit: No workspace folder open.');
@@ -327,6 +363,7 @@ async function cmdPickSkill(): Promise<void> {
 }
 
 async function cmdCheckTeamSync(): Promise<void> {
+  if (!requireTrustedWorkspace()) return;
   const rootPath = getRootPath();
   if (!rootPath) {
     vscode.window.showErrorMessage('AI-Kit: No workspace folder open.');
@@ -338,11 +375,15 @@ async function cmdCheckTeamSync(): Promise<void> {
     placeHolder: 'https://raw.githubusercontent.com/your-org/your-repo/main/ai-kit-team.json',
   });
   if (!url) return;
+  if (!isAllowedTeamConfigUrl(url.trim())) {
+    vscode.window.showErrorMessage('AI-Kit: Team config URL must be a valid https URL.');
+    return;
+  }
 
   await vscode.window.withProgress(
     { location: vscode.ProgressLocation.Notification, title: 'AI-Kit: Checking team sync...' },
     async () => {
-      const { fetchTeamConfig } = await import('@ai-kit-salesforce/core');
+      const { fetchTeamConfig } = await import('@sf-ai-toolkit/core');
       const cfg = await fetchTeamConfig(url);
       if (!cfg) {
         vscode.window.showErrorMessage('AI-Kit: Could not fetch team config. Check the URL.');
@@ -353,14 +394,63 @@ async function cmdCheckTeamSync(): Promise<void> {
         'ai-kit-team-sync',
         'AI-Kit Team Sync',
         vscode.ViewColumn.One,
-        {}
+        { enableScripts: false }
       );
       panel.webview.html = buildTeamSyncHtml(result);
     }
   );
 }
 
+async function cmdAddHooks(): Promise<void> {
+  if (!requireTrustedWorkspace()) return;
+  const rootPath = getRootPath();
+  if (!rootPath) {
+    vscode.window.showErrorMessage('AI-Kit: No workspace folder open.');
+    return;
+  }
+
+  const hookPaths = ['sf-ai-toolkit.config.json', '.githooks/pre-commit', '.githooks/commit-msg'];
+  const files = await Promise.all(
+    hookPaths.map(async (relativePath) => {
+      const fullPath = path.join(rootPath, relativePath);
+      const fileExists = await fs.pathExists(fullPath);
+      return {
+        relativePath,
+        action: (fileExists ? 'skip' : 'create') as 'skip' | 'create',
+        reason: fileExists ? 'File already exists — will not overwrite' : 'Will be created from template',
+        templateKey: relativePath,
+      };
+    })
+  );
+
+  const hooksPlan: SetupPlan = {
+    rootPath,
+    preset: 'core',
+    dryRun: false,
+    files,
+    packageJsonScripts: {},
+    forceIgnoreLines: [],
+  };
+
+  await vscode.window.withProgress(
+    { location: vscode.ProgressLocation.Notification, title: 'AI-Kit: Adding Git hooks...' },
+    async () => {
+      const result = await applySetup(rootPath, hooksPlan);
+      for (const hookPath of ['.githooks/pre-commit', '.githooks/commit-msg']) {
+        const fullPath = path.join(rootPath, hookPath);
+        if (await fs.pathExists(fullPath)) {
+          await fs.chmod(fullPath, 0o755);
+        }
+      }
+      vscode.window.showInformationMessage(
+        `AI-Kit: ${result.filesCreated.length} hook/config file(s) created, ${result.filesSkipped.length} skipped. Run: git config core.hooksPath .githooks`
+      );
+    }
+  );
+}
+
 async function cmdAddFiles(type: string): Promise<void> {
+  if (!requireTrustedWorkspace()) return;
   const rootPath = getRootPath();
   if (!rootPath) {
     vscode.window.showErrorMessage('AI-Kit: No workspace folder open.');
@@ -369,10 +459,10 @@ async function cmdAddFiles(type: string): Promise<void> {
 
   const fileMap: Record<string, string[]> = {
     cursor: ['.cursor/rules/project.mdc', '.cursor/rules/salesforce-mcp.mdc', '.cursor/rules/apex.mdc', '.cursor/rules/lwc.mdc', '.cursor/rules/deployment.mdc', '.cursor/rules/safety.mdc'],
-    'cursor-skills': ['.cursor/skills/salesforce-apex/SKILL.md', '.cursor/skills/salesforce-lwc/SKILL.md', '.cursor/skills/salesforce-flow/SKILL.md', '.cursor/skills/salesforce-security-review/SKILL.md', '.cursor/skills/salesforce-agentforce/SKILL.md', '.cursor/skills/salesforce-data-cloud/SKILL.md'],
+    'cursor-skills': ['docs/afv-library.md', 'docs/skills-ecosystem.md'],
     claude: ['AGENTS.md', 'CLAUDE.md', 'tasks/todo.md', 'tasks/lessons.md', '.claude/commands/review-security.md', '.claude/commands/validate-deploy.md', '.claude/commands/write-tests.md', '.claude/commands/create-apex.md', '.claude/commands/create-lwc.md', '.claude/commands/prepare-pr.md', '.claude/agents/salesforce-architect.md', '.claude/agents/apex-developer.md', '.claude/agents/lwc-developer.md', '.claude/agents/qa-tester.md', '.claude/agents/security-reviewer.md'],
     mcp: ['docs/mcp-usage.md', '.cursor/rules/salesforce-mcp.mdc'],
-    'jags-skills': ['.cursor/skills/salesforce-apex/SKILL.md', '.cursor/skills/salesforce-lwc/SKILL.md', '.cursor/skills/salesforce-flow/SKILL.md', '.cursor/skills/salesforce-security-review/SKILL.md', '.cursor/skills/salesforce-agentforce/SKILL.md', '.cursor/skills/salesforce-data-cloud/SKILL.md', 'docs/jags-skills.md', 'docs/skills-ecosystem.md'],
+    'afv-skills': ['docs/afv-library.md', 'docs/skills-ecosystem.md'],
     'afv-library': ['docs/afv-library.md', 'docs/skills-ecosystem.md'],
   };
 
@@ -382,7 +472,13 @@ async function cmdAddFiles(type: string): Promise<void> {
     { location: vscode.ProgressLocation.Notification, title: `AI-Kit: Adding ${type}...` },
     async () => {
       const plan = await planSetup(rootPath, { preset: 'core', dryRun: false });
-      const filteredPlan = { ...plan, files: plan.files.filter((f) => targetFiles.includes(f.relativePath)), packageJsonScripts: {}, forceIgnoreLines: [] };
+      const filteredFiles = plan.files.filter((f) => {
+        if (type === 'cursor-skills' || type === 'afv-skills') {
+          return f.relativePath.startsWith('.cursor/skills/') || targetFiles.includes(f.relativePath);
+        }
+        return targetFiles.includes(f.relativePath);
+      });
+      const filteredPlan = { ...plan, files: filteredFiles, packageJsonScripts: {}, forceIgnoreLines: [] };
       const result = await applySetup(rootPath, filteredPlan);
       statusBarProvider.scheduleRefresh(500);
       vscode.window.showInformationMessage(`AI-Kit: ${result.filesCreated.length} file(s) created, ${result.filesSkipped.length} skipped.`);
@@ -401,12 +497,12 @@ function buildReportHtml(
   const score = result.score;
   const scoreColor = score >= 80 ? '#4caf50' : score >= 50 ? '#ff9800' : '#f44336';
   const orgBanner = orgCtx.source !== 'none'
-    ? `<div class="org-banner">Working against org: <strong>${orgCtx.defaultOrg}</strong> <span class="dim">(${orgCtx.source})</span></div>`
+    ? `<div class="org-banner">Working against org: <strong>${escapeHtml(orgCtx.defaultOrg ?? 'unknown')}</strong> <span class="dim">(${escapeHtml(orgCtx.source)})</span></div>`
     : '<div class="org-banner warn">No org context detected — run ai-kit-sf bootstrap-mcp</div>';
 
   const driftSection = drift.drifted.length > 0
     ? `<div class="section"><h2>⚠ Drift Detected</h2><ul>${drift.drifted.map((d) =>
-        `<li><strong>${d.relativePath}</strong> — ${d.reason}<br><small>${d.missingSignals.join(', ')}</small></li>`
+        `<li><strong>${escapeHtml(d.relativePath)}</strong> — ${escapeHtml(d.reason)}<br><small>${d.missingSignals.map(escapeHtml).join(', ')}</small></li>`
       ).join('')}</ul></div>`
     : `<div class="section"><p style="color:#4caf50">✓ No template drift detected.</p></div>`;
 
@@ -427,8 +523,8 @@ function buildReportHtml(
 ${orgBanner}
 <p style="margin:4px 0;opacity:.7">AI Readiness Score</p>
 <div class="score">${score}/100</div>
-${result.missing.length > 0 ? `<div class="section"><h2>Missing</h2><ul>${result.missing.map((m) => `<li>${m}</li>`).join('')}</ul></div>` : '<p style="color:#4caf50;margin-top:12px">✓ No missing items!</p>'}
-${result.recommendations.length > 0 ? `<div class="section"><h2>Recommendations</h2><ul>${result.recommendations.map((r) => `<li>${r}</li>`).join('')}</ul></div>` : ''}
+${result.missing.length > 0 ? `<div class="section"><h2>Missing</h2><ul>${renderList(result.missing)}</ul></div>` : '<p style="color:#4caf50;margin-top:12px">✓ No missing items!</p>'}
+${result.recommendations.length > 0 ? `<div class="section"><h2>Recommendations</h2><ul>${renderList(result.recommendations)}</ul></div>` : ''}
 ${driftSection}
 <div class="section"><h2>Full Report</h2><pre>${escaped}</pre></div>
 </body></html>`;
@@ -436,13 +532,13 @@ ${driftSection}
 
 function buildDriftHtml(drift: Awaited<ReturnType<typeof detectDrift>>): string {
   const driftedRows = drift.drifted.map((d) =>
-    `<tr><td><strong>${d.relativePath}</strong></td><td>${d.reason}</td><td>${d.missingSignals.join('<br>')}</td></tr>`
+    `<tr><td><strong>${escapeHtml(d.relativePath)}</strong></td><td>${escapeHtml(d.reason)}</td><td>${d.missingSignals.map(escapeHtml).join('<br>')}</td></tr>`
   ).join('');
   const missingRows = drift.missing.map((m) =>
-    `<tr><td><strong>${m}</strong></td><td>File not found</td><td>—</td></tr>`
+    `<tr><td><strong>${escapeHtml(m)}</strong></td><td>File not found</td><td>—</td></tr>`
   ).join('');
   const okRows = drift.upToDate.map((f) =>
-    `<tr><td>${f}</td><td colspan="2" style="color:#4caf50">✓ Up to date</td></tr>`
+    `<tr><td>${escapeHtml(f)}</td><td colspan="2" style="color:#4caf50">✓ Up to date</td></tr>`
   ).join('');
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
@@ -468,5 +564,5 @@ function buildTeamSyncHtml(result: Awaited<ReturnType<typeof checkTeamSync>>): s
     drifted: result.drifted,
     missing: result.missing,
     upToDate: result.upToDate,
-  }).replace('<h1>AI-Kit Drift Report</h1>', `<h1>AI-Kit Team Sync — v${result.configVersion}</h1><p>${result.summary}</p>`);
+  }).replace('<h1>AI-Kit Drift Report</h1>', `<h1>AI-Kit Team Sync — v${escapeHtml(result.configVersion)}</h1><p>${escapeHtml(result.summary)}</p>`);
 }

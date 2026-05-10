@@ -1,6 +1,6 @@
 node_modules/
 .DS_Store
 .cursor/
-.ai-kit-salesforce-backup/
+.sf-ai-toolkit-backup/
 packages/**/dist/bundled/
 *.log

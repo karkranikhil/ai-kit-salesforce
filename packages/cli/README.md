@@ -1,8 +1,8 @@
-# @ai-kit-salesforce/cli
+# @sf-ai-toolkit/cli
 
-Command-line tool for [AI-Kit for Salesforce](https://marketplace.visualstudio.com/items?itemName=ai-kit-salesforce.ai-kit-salesforce).
+Command-line tool for [SF AI Toolkit](https://marketplace.visualstudio.com/items?itemName=NikhilKarkra.sf-ai-toolkit).
 
-Makes every Salesforce DX project AI-ready in minutes — generates Cursor rules, Claude Code config, Salesforce DX MCP setup, skills, agents, and guardrails from the terminal.
+Makes every Salesforce DX project AI-ready in minutes — generates cross-tool guardrails for Cursor, Claude Code, Codex-style agents, Antigravity, and other MCP-capable workflows.
 
 ---
 
@@ -11,13 +11,13 @@ Makes every Salesforce DX project AI-ready in minutes — generates Cursor rules
 Run without installing:
 
 ```bash
-npx @ai-kit-salesforce/cli init
+npx @sf-ai-toolkit/cli init
 ```
 
 Or install globally:
 
 ```bash
-npm install -g @ai-kit-salesforce/cli
+npm install -g @sf-ai-toolkit/cli
 ai-kit-sf init
 ```
 
@@ -29,16 +29,27 @@ Open your Salesforce DX project folder in a terminal and run:
 
 ```bash
 # Step 1 — See what is missing
-npx @ai-kit-salesforce/cli scan
+npx @sf-ai-toolkit/cli scan
 
 # Step 2 — Apply the full setup
-npx @ai-kit-salesforce/cli init
+npx @sf-ai-toolkit/cli init
 
 # Step 3 — Configure MCP for your org
-npx @ai-kit-salesforce/cli bootstrap-mcp
+npx @sf-ai-toolkit/cli bootstrap-mcp
 ```
 
-That's it. Your project has Cursor rules, CLAUDE.md, MCP config, skills, agents, and guardrails.
+That's it. Your project has Cursor rules, cross-tool AI policy docs, CLAUDE.md, MCP config, skills, agents, and guardrails.
+
+## 90-Second Demo
+
+```bash
+npx @sf-ai-toolkit/cli scan
+npx @sf-ai-toolkit/cli init --preset core --yes
+npx @sf-ai-toolkit/cli deploy-preview
+npx @sf-ai-toolkit/cli doctor
+```
+
+This gives a full before/after story: score, auto-setup, deployment risk preview, and final health check.
 
 ---
 
@@ -56,10 +67,21 @@ That's it. Your project has Cursor rules, CLAUDE.md, MCP config, skills, agents,
 | `add-cursor` | Add Cursor rules only |
 | `add-claude` | Add Claude Code config only |
 | `add-mcp` | Add MCP docs and rule only |
-| `add-jags-skills` | Add Cursor skill templates |
+| `add-afv-skills` | Add Salesforce AFV-compatible skill templates (40 skills) |
 | `add-afv-library` | Add Salesforce AFV Library guide |
+| `add-hooks` | Add configurable Git hooks (PMD + commit message policy) |
 | `add-claude-mem` | Generate a `claude-mem` Salesforce DX mode file |
 | `pick-skill` | List installed skills and copy an `@mention` reference |
+
+## AI Tool Compatibility
+
+| AI Tool | How This CLI Helps |
+|---------|--------------------|
+| Cursor | Scaffolds `.cursor/rules` and `.cursor/skills`, MCP bootstrap |
+| Claude Code | Scaffolds `CLAUDE.md`, `.claude/commands`, `.claude/agents` |
+| Codex-style agents | Generates `AI_INSTRUCTIONS.md` and shared policy docs |
+| Antigravity-style agents | Uses shared policy docs + org-safe guardrails |
+| Any MCP-capable assistant | Standardized MCP setup and workflow safety patterns |
 
 ---
 
@@ -77,7 +99,7 @@ Most commands support these flags:
 Example:
 
 ```bash
-npx @ai-kit-salesforce/cli init --preset agentforce --yes --dry-run
+npx @sf-ai-toolkit/cli init --preset agentforce --yes --dry-run
 ```
 
 ---
@@ -87,16 +109,36 @@ npx @ai-kit-salesforce/cli init --preset agentforce --yes --dry-run
 Running `init --preset core` creates the following files if they do not already exist:
 
 ```
+AI_INSTRUCTIONS.md           Canonical cross-tool AI policy file
 AGENTS.md                    AI tool usage guide
 CLAUDE.md                    Claude Code rules and workflow orchestration
 tasks/todo.md                AI task tracker
 tasks/lessons.md             Lessons learned log
 
 .cursor/rules/               6 Cursor rule files (Apex, LWC, MCP, Deployment, Safety, Project)
-.cursor/skills/              6 skill templates (Apex, LWC, Flow, Security, Agentforce, Data Cloud)
+.cursor/skills/              40 skill templates (11 SF AI Toolkit + 29 AFV-compatible)
 .claude/commands/            6 slash commands
 .claude/agents/              5 sub-agent definitions
-docs/                        9 reference documentation files
+docs/                        11 reference documentation files (includes Codex and Antigravity setup)
+```
+
+## SF AI Toolkit vs AFV Library
+
+SF AI Toolkit and AFV Library are complementary:
+- SF AI Toolkit provides setup orchestration, safety guardrails, diagnostics, and team consistency workflows.
+- AFV Library provides reusable Salesforce implementation assets and patterns.
+
+## Configurable Team Standards
+
+Use `add-hooks` to scaffold:
+- `.githooks/pre-commit` (optional PMD command)
+- `.githooks/commit-msg` (custom commit message policy)
+- `sf-ai-toolkit.config.json` (team-overridable policy file)
+
+One-time activation:
+
+```bash
+git config core.hooksPath .githooks
 ```
 
 Existing files are never overwritten. A backup is created before any file is modified.
@@ -112,8 +154,8 @@ Existing files are never overwritten. A backup is created before any file is mod
 
 ## Related
 
-- [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=ai-kit-salesforce.ai-kit-salesforce) — real-time inline diagnostics, status bar, and all commands inside VS Code and Cursor
-- [@ai-kit-salesforce/core](https://www.npmjs.com/package/@ai-kit-salesforce/core) — the underlying engine if you want to build your own tooling
+- [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=NikhilKarkra.sf-ai-toolkit) — real-time inline diagnostics, status bar, and all commands inside VS Code and Cursor
+- [@sf-ai-toolkit/core](https://www.npmjs.com/package/@sf-ai-toolkit/core) — the underlying engine if you want to build your own tooling
 
 ---
 

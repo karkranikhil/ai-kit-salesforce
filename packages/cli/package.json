@@ -1,16 +1,16 @@
 {
-  "name": "@ai-kit-salesforce/cli",
-  "version": "0.1.2",
-  "description": "Make every Salesforce DX project AI-ready in minutes — scaffolds Cursor rules, Claude Code config, MCP setup, skills, and security guardrails.",
+  "name": "@sf-ai-toolkit/cli",
+  "version": "0.1.6",
+  "description": "Make every Salesforce DX project AI-ready in minutes — scaffolds secure, cross-tool AI workflows for Cursor, Claude, Codex-style agents, and MCP-powered assistants.",
   "license": "MIT",
   "author": {
     "name": "Nikhil Karkra",
     "url": "https://github.com/karkranikhil"
   },
-  "homepage": "https://github.com/karkranikhil/ai-kit-salesforce#readme",
+  "homepage": "https://github.com/karkranikhil/sf-ai-toolkit#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/karkranikhil/ai-kit-salesforce"
+    "url": "https://github.com/karkranikhil/sf-ai-toolkit"
   },
   "keywords": [
     "salesforce",
@@ -18,6 +18,9 @@
     "sfdx",
     "claude",
     "cursor",
+    "codex",
+    "antigravity",
+    "agentic",
     "ai",
     "mcp",
     "agentforce",
@@ -36,10 +39,10 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@ai-kit-salesforce/core": "0.1.0",
     "chalk": "^4.1.2",
     "commander": "^12.1.0",
-    "prompts": "^2.4.2"
+    "prompts": "^2.4.2",
+    "@sf-ai-toolkit/core": "*"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",

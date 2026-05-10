@@ -1,18 +1,18 @@
 {
-  "name": "ai-kit-salesforce",
-  "displayName": "AI-Kit for Salesforce",
-  "description": "Make every Salesforce DX project AI-ready in minutes. Scaffolds Cursor rules, Claude Code config, MCP setup, Apex/LWC inline diagnostics, Agentforce context detection, and security guardrails.",
-  "version": "0.1.4",
-  "publisher": "ai-kit-salesforce",
+  "name": "sf-ai-toolkit",
+  "displayName": "SF AI Toolkit",
+  "description": "Make every Salesforce DX project AI-ready in minutes. Scaffolds secure cross-tool workflows for Cursor, Claude, Codex-style agents, Antigravity, and MCP-powered Salesforce delivery.",
+  "version": "0.1.7",
+  "publisher": "NikhilKarkra",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/karkranikhil/ai-kit-salesforce"
+    "url": "https://github.com/karkranikhil/sf-ai-toolkit"
   },
   "bugs": {
-    "url": "https://github.com/karkranikhil/ai-kit-salesforce/issues"
+    "url": "https://github.com/karkranikhil/sf-ai-toolkit/issues"
   },
-  "homepage": "https://github.com/karkranikhil/ai-kit-salesforce#readme",
+  "homepage": "https://github.com/karkranikhil/sf-ai-toolkit#readme",
   "icon": "images/icon.png",
   "galleryBanner": {
     "color": "#00A1E0",
@@ -20,6 +20,12 @@
   },
   "engines": {
     "vscode": "^1.85.0"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "SF AI Toolkit modifies workspace files and may fetch team config over network."
+    }
   },
   "categories": [
     "Other",
@@ -32,6 +38,9 @@
     "sfdx",
     "claude",
     "cursor",
+    "codex",
+    "antigravity",
+    "agentic",
     "ai",
     "mcp",
     "agentforce",
@@ -47,65 +56,69 @@
     "commands": [
       {
         "command": "ai-kit-sf.scan",
-        "title": "AI-Kit: Scan Salesforce Project"
+        "title": "SF AI Toolkit: Scan Salesforce Project"
       },
       {
         "command": "ai-kit-sf.init",
-        "title": "AI-Kit: Apply Recommended Setup"
+        "title": "SF AI Toolkit: Apply Recommended Setup"
       },
       {
         "command": "ai-kit-sf.openReport",
-        "title": "AI-Kit: Open Readiness Report"
+        "title": "SF AI Toolkit: Open Readiness Report"
       },
       {
         "command": "ai-kit-sf.addCursor",
-        "title": "AI-Kit: Add Cursor Rules"
+        "title": "SF AI Toolkit: Add Cursor Rules"
       },
       {
         "command": "ai-kit-sf.addCursorSkills",
-        "title": "AI-Kit: Add Cursor Skills"
+        "title": "SF AI Toolkit: Add Cursor Skills"
       },
       {
         "command": "ai-kit-sf.addClaude",
-        "title": "AI-Kit: Add Claude Code Setup"
+        "title": "SF AI Toolkit: Add Claude Code Setup"
       },
       {
         "command": "ai-kit-sf.addMcp",
-        "title": "AI-Kit: Add MCP Guardrails"
+        "title": "SF AI Toolkit: Add MCP Guardrails"
       },
       {
-        "command": "ai-kit-sf.addJagsSkills",
-        "title": "AI-Kit: Add Jag-Compatible Skills"
+        "command": "ai-kit-sf.addHooks",
+        "title": "SF AI Toolkit: Add Git Hooks"
+      },
+      {
+        "command": "ai-kit-sf.addAfvSkills",
+        "title": "SF AI Toolkit: Add AFV Skill Templates (40)"
       },
       {
         "command": "ai-kit-sf.addAfvLibrary",
-        "title": "AI-Kit: Add Salesforce AFV Library Guide"
+        "title": "SF AI Toolkit: Add Salesforce AFV Library Guide"
       },
       {
         "command": "ai-kit-sf.bootstrapMcp",
-        "title": "AI-Kit: Bootstrap MCP Config"
+        "title": "SF AI Toolkit: Bootstrap MCP Config"
       },
       {
         "command": "ai-kit-sf.checkDrift",
-        "title": "AI-Kit: Check Template Drift"
+        "title": "SF AI Toolkit: Check Template Drift"
       },
       {
         "command": "ai-kit-sf.addClaudeMem",
-        "title": "AI-Kit: Add claude-mem Salesforce Mode"
+        "title": "SF AI Toolkit: Add claude-mem Salesforce Mode"
       },
       {
         "command": "ai-kit-sf.pickSkill",
-        "title": "AI-Kit: Insert Skill Reference"
+        "title": "SF AI Toolkit: Insert Skill Reference"
       },
       {
         "command": "ai-kit-sf.checkTeamSync",
-        "title": "AI-Kit: Check Team Sync"
+        "title": "SF AI Toolkit: Check Team Sync"
       }
     ],
     "configuration": {
       "title": "AI-Kit for Salesforce",
       "properties": {
-        "ai-kit-salesforce.teamConfigUrl": {
+        "sf-ai-toolkit.teamConfigUrl": {
           "type": "string",
           "default": "",
           "description": "URL to your team AI-Kit config JSON for drift detection on project open"
@@ -122,8 +135,8 @@
     "build:tsc": "tsc"
   },
   "dependencies": {
-    "@ai-kit-salesforce/core": "*",
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.2.0",
+    "@sf-ai-toolkit/core": "*"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",

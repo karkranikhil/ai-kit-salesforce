@@ -51,11 +51,11 @@ describe('scanProject', () => {
     expect(result.hasCursorRules).toBe(true);
   });
 
-  it('detects cursor skills directory and marks hasJagsSkills true', async () => {
+  it('detects cursor skills directory and marks hasAfvSkills true', async () => {
     await fs.ensureDir(path.join(tmpDir, '.cursor', 'skills'));
     const result = await scanProject(tmpDir);
     expect(result.hasCursorSkills).toBe(true);
-    expect(result.hasJagsSkills).toBe(true);
+    expect(result.hasAfvSkills).toBe(true);
   });
 
   it('calculates readiness score 0 for empty project', async () => {

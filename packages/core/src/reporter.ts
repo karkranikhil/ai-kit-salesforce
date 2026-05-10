@@ -62,7 +62,7 @@ export function generateReadinessReport(result: ProjectScanResult): string {
     ['.claude/agents/', result.hasClaudeAgents],
     ['Security/testing/deployment docs', result.hasDocs],
     ['MCP guide/config', result.hasMcpGuide || result.hasMcpConfig],
-    ['Jag-compatible skill templates', result.hasJagsSkills],
+    ['AFV-compatible skill templates', result.hasAfvSkills],
     ['AFV Library docs/skills', result.hasAfvLibraryDocs || result.hasAfvLibrarySkills],
   ];
 

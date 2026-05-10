@@ -82,7 +82,7 @@ export async function scanProject(rootPath: string): Promise<ProjectScanResult> 
     exists(p('.cursor', 'rules', 'project.mdc')),
   ]);
 
-  const hasJagsSkills = hasCursorSkillsDir;
+  const hasAfvSkills = hasCursorSkillsDir;
   const hasDocs = hasSecurityDoc && hasTestingDoc && hasDeploymentDoc;
   const hasTaskManagement = hasTasksTodo && hasTasksLessons;
 
@@ -177,10 +177,10 @@ export async function scanProject(rootPath: string): Promise<ProjectScanResult> 
     recommendations.push('Add Salesforce DX MCP usage guide and config.');
   }
 
-  if (hasJagsSkills) {
+  if (hasAfvSkills) {
     score += 2;
   } else {
-    missing.push('Jag-compatible Salesforce skill templates');
+    missing.push('AFV-compatible Salesforce skill templates');
     recommendations.push('Add AI-Kit Salesforce skill templates (compatible with Cursor skills workflow).');
   }
 
@@ -220,7 +220,7 @@ export async function scanProject(rootPath: string): Promise<ProjectScanResult> 
     hasMcpGuide: hasMcpGuideDoc,
     hasForceIgnore,
     hasMcpConfig,
-    hasJagsSkills,
+    hasAfvSkills,
     hasAfvLibraryDocs,
     hasAfvLibrarySkills,
     hasTasksTodo,
