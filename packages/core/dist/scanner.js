@@ -217,10 +217,10 @@ async function scanProject(rootPath) {
         warnings.push('.forceignore not found — recommended entries will be created.');
     }
     if (recommendations.length === 0 && missing.length === 0) {
-        recommendations.push('Your project looks great! Run ai-kit-sf scan periodically to keep it up to date.');
+        recommendations.push('Your project looks great! Run sf-ai-toolkit scan periodically to keep it up to date.');
     }
     else if (missing.length > 0) {
-        recommendations.unshift(`Run: ai-kit-sf init --preset core`);
+        recommendations.unshift(`Run: sf-ai-toolkit init --preset core`);
     }
     return {
         rootPath,

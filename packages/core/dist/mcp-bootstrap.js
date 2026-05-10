@@ -91,7 +91,7 @@ async function validateMcpConfig(configPath) {
         return {
             valid: false,
             issues: ['Config file not found'],
-            suggestions: ['Run: ai-kit-sf bootstrap-mcp to create it'],
+            suggestions: ['Run: sf-ai-toolkit bootstrap-mcp to create it'],
         };
     }
     let config;

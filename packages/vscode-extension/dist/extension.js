@@ -4750,7 +4750,7 @@ async function validateMcpConfig(configPath) {
         return {
             valid: false,
             issues: ['Config file not found'],
-            suggestions: ['Run: ai-kit-sf bootstrap-mcp to create it'],
+            suggestions: ['Run: sf-ai-toolkit bootstrap-mcp to create it'],
         };
     }
     let config;
@@ -5542,10 +5542,10 @@ async function scanProject(rootPath) {
         warnings.push('.forceignore not found — recommended entries will be created.');
     }
     if (recommendations.length === 0 && missing.length === 0) {
-        recommendations.push('Your project looks great! Run ai-kit-sf scan periodically to keep it up to date.');
+        recommendations.push('Your project looks great! Run sf-ai-toolkit scan periodically to keep it up to date.');
     }
     else if (missing.length > 0) {
-        recommendations.unshift(`Run: ai-kit-sf init --preset core`);
+        recommendations.unshift(`Run: sf-ai-toolkit init --preset core`);
     }
     return {
         rootPath,
@@ -10780,7 +10780,7 @@ function buildReportHtml(result, report, orgCtx, drift) {
     const scoreColor = score >= 80 ? '#4caf50' : score >= 50 ? '#ff9800' : '#f44336';
     const orgBanner = orgCtx.source !== 'none'
         ? `<div class="org-banner">Working against org: <strong>${escapeHtml(orgCtx.defaultOrg ?? 'unknown')}</strong> <span class="dim">(${escapeHtml(orgCtx.source)})</span></div>`
-        : '<div class="org-banner warn">No org context detected — run ai-kit-sf bootstrap-mcp</div>';
+        : '<div class="org-banner warn">No org context detected — run sf-ai-toolkit bootstrap-mcp</div>';
     const driftSection = drift.drifted.length > 0
         ? `<div class="section"><h2>⚠ Drift Detected</h2><ul>${drift.drifted.map((d) => `<li><strong>${escapeHtml(d.relativePath)}</strong> — ${escapeHtml(d.reason)}<br><small>${d.missingSignals.map(escapeHtml).join(', ')}</small></li>`).join('')}</ul></div>`
         : `<div class="section"><p style="color:#4caf50">✓ No template drift detected.</p></div>`;

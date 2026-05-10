@@ -55,7 +55,7 @@ function doctorCommand() {
         else {
             ui.warn('No org context detected (.sf/config.json, sfdx-project.json, .sfdx/)');
             ui.item('  Run: sf org list  to see available orgs');
-            ui.item('  Run: ai-kit-sf bootstrap-mcp  to configure MCP with your org alias');
+            ui.item('  Run: sf-ai-toolkit bootstrap-mcp  to configure MCP with your org alias');
         }
         // ── AI setup scan ────────────────────────────────────────────────────
         console.log('');
@@ -95,7 +95,7 @@ function doctorCommand() {
         }
         if (!anyMcpFound) {
             ui.warn('No MCP config found.');
-            ui.item('  Run: ai-kit-sf bootstrap-mcp  to create one');
+            ui.item('  Run: sf-ai-toolkit bootstrap-mcp  to create one');
         }
         // ── Drift detection ─────────────────────────────────────────────────
         console.log('');
@@ -114,7 +114,7 @@ function doctorCommand() {
             if (drift.missing.length > 0) {
                 ui.warn(`${drift.missing.length} tracked template file(s) not found`);
             }
-            ui.info('Run: ai-kit-sf check-drift  for full details');
+            ui.info('Run: sf-ai-toolkit check-drift  for full details');
         }
         // ── Summary ──────────────────────────────────────────────────────────
         const issues = result.missing.length + drift.drifted.length;
@@ -124,11 +124,11 @@ function doctorCommand() {
         }
         else {
             if (result.missing.length > 0)
-                ui.info('Fix setup: ai-kit-sf init --preset core');
+                ui.info('Fix setup: sf-ai-toolkit init --preset core');
             if (drift.drifted.length > 0)
-                ui.info('Fix drift: ai-kit-sf check-drift');
+                ui.info('Fix drift: sf-ai-toolkit check-drift');
             if (!anyMcpFound)
-                ui.info('Bootstrap MCP: ai-kit-sf bootstrap-mcp');
+                ui.info('Bootstrap MCP: sf-ai-toolkit bootstrap-mcp');
         }
     });
 }

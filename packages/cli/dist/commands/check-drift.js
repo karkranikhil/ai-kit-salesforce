@@ -97,7 +97,7 @@ function checkDriftCommand() {
         ui.info('To refresh drifted files:');
         ui.item('  1. Back up your customisations first.');
         ui.item('  2. Delete the drifted file(s).');
-        ui.item('  3. Run: ai-kit-sf init --preset core --yes');
+        ui.item('  3. Run: sf-ai-toolkit init --preset core --yes');
         ui.item('  4. Re-apply your customisations.');
     });
 }

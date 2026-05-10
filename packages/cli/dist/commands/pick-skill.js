@@ -47,7 +47,7 @@ function pickSkillCommand() {
         const skills = await (0, core_1.listInstalledSkills)(rootPath);
         if (skills.length === 0) {
             ui.warn('No Cursor skills found under .cursor/skills/');
-            ui.info('Run: ai-kit-sf add-cursor to install AI-Kit skill templates.');
+            ui.info('Run: sf-ai-toolkit add-cursor to install AI-Kit skill templates.');
             return;
         }
         ui.header('Installed Cursor Skills');

@@ -11281,7 +11281,7 @@ function addClaudeMemCommand() {
         console.log('');
         ui.info('To activate this mode in claude-mem:');
         ui.item(`  1. Copy docs/claude-mem/salesforce-dx.json to your claude-mem plugin/modes/ folder.`);
-        ui.item(`  2. Or use: ai-kit-sf add-claude-mem --claude-mem-dir ~/.claude-mem/plugin/modes/`);
+        ui.item(`  2. Or use: sf-ai-toolkit add-claude-mem --claude-mem-dir ~/.claude-mem/plugin/modes/`);
         ui.item(`  3. Set mode in claude-mem settings: "salesforce-dx"`);
         ui.item(`  4. Restart Claude Code.`);
         console.log('');
@@ -12013,7 +12013,7 @@ function checkDriftCommand() {
         ui.info('To refresh drifted files:');
         ui.item('  1. Back up your customisations first.');
         ui.item('  2. Delete the drifted file(s).');
-        ui.item('  3. Run: ai-kit-sf init --preset core --yes');
+        ui.item('  3. Run: sf-ai-toolkit init --preset core --yes');
         ui.item('  4. Re-apply your customisations.');
     });
 }
@@ -12276,7 +12276,7 @@ function doctorCommand() {
         else {
             ui.warn('No org context detected (.sf/config.json, sfdx-project.json, .sfdx/)');
             ui.item('  Run: sf org list  to see available orgs');
-            ui.item('  Run: ai-kit-sf bootstrap-mcp  to configure MCP with your org alias');
+            ui.item('  Run: sf-ai-toolkit bootstrap-mcp  to configure MCP with your org alias');
         }
         // ── AI setup scan ────────────────────────────────────────────────────
         console.log('');
@@ -12316,7 +12316,7 @@ function doctorCommand() {
         }
         if (!anyMcpFound) {
             ui.warn('No MCP config found.');
-            ui.item('  Run: ai-kit-sf bootstrap-mcp  to create one');
+            ui.item('  Run: sf-ai-toolkit bootstrap-mcp  to create one');
         }
         // ── Drift detection ─────────────────────────────────────────────────
         console.log('');
@@ -12335,7 +12335,7 @@ function doctorCommand() {
             if (drift.missing.length > 0) {
                 ui.warn(`${drift.missing.length} tracked template file(s) not found`);
             }
-            ui.info('Run: ai-kit-sf check-drift  for full details');
+            ui.info('Run: sf-ai-toolkit check-drift  for full details');
         }
         // ── Summary ──────────────────────────────────────────────────────────
         const issues = result.missing.length + drift.drifted.length;
@@ -12345,11 +12345,11 @@ function doctorCommand() {
         }
         else {
             if (result.missing.length > 0)
-                ui.info('Fix setup: ai-kit-sf init --preset core');
+                ui.info('Fix setup: sf-ai-toolkit init --preset core');
             if (drift.drifted.length > 0)
-                ui.info('Fix drift: ai-kit-sf check-drift');
+                ui.info('Fix drift: sf-ai-toolkit check-drift');
             if (!anyMcpFound)
-                ui.info('Bootstrap MCP: ai-kit-sf bootstrap-mcp');
+                ui.info('Bootstrap MCP: sf-ai-toolkit bootstrap-mcp');
         }
     });
 }
@@ -12603,7 +12603,7 @@ function pickSkillCommand() {
         const skills = await (0, core_1.listInstalledSkills)(rootPath);
         if (skills.length === 0) {
             ui.warn('No Cursor skills found under .cursor/skills/');
-            ui.info('Run: ai-kit-sf add-cursor to install AI-Kit skill templates.');
+            ui.info('Run: sf-ai-toolkit add-cursor to install AI-Kit skill templates.');
             return;
         }
         ui.header('Installed Cursor Skills');
@@ -14667,7 +14667,7 @@ async function validateMcpConfig(configPath) {
         return {
             valid: false,
             issues: ['Config file not found'],
-            suggestions: ['Run: ai-kit-sf bootstrap-mcp to create it'],
+            suggestions: ['Run: sf-ai-toolkit bootstrap-mcp to create it'],
         };
     }
     let config;
@@ -15459,10 +15459,10 @@ async function scanProject(rootPath) {
         warnings.push('.forceignore not found — recommended entries will be created.');
     }
     if (recommendations.length === 0 && missing.length === 0) {
-        recommendations.push('Your project looks great! Run ai-kit-sf scan periodically to keep it up to date.');
+        recommendations.push('Your project looks great! Run sf-ai-toolkit scan periodically to keep it up to date.');
     }
     else if (missing.length > 0) {
-        recommendations.unshift(`Run: ai-kit-sf init --preset core`);
+        recommendations.unshift(`Run: sf-ai-toolkit init --preset core`);
     }
     return {
         rootPath,
