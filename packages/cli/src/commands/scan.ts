@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import * as path from 'path';
-import { scanProject, generateReadinessReport, readOrgContext } from '@ai-kit-salesforce/core';
+import { scanProject, generateReadinessReport, readOrgContext } from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 export function scanCommand(): Command {

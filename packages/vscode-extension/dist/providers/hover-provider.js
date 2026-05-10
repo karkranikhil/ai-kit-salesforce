@@ -40,7 +40,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AiKitHoverProvider = void 0;
 exports.registerHoverProvider = registerHoverProvider;
 const vscode = __importStar(require("vscode"));
-const core_1 = require("@ai-kit-salesforce/core");
+const core_1 = require("@sf-ai-toolkit/core");
 class AiKitHoverProvider {
     constructor(diagnosticCollection) {
         this.diagnosticCollection = diagnosticCollection;
@@ -60,7 +60,7 @@ class AiKitHoverProvider {
         const ruleFile = ruleFileMatch ? ruleFileMatch[1] : '';
         const hoverContent = (0, core_1.getHoverContent)(ruleFile, diag.message);
         const md = new vscode.MarkdownString('', true);
-        md.isTrusted = true;
+        md.isTrusted = { enabledCommands: ['_vscode.open'] };
         md.supportHtml = false;
         // Title (bold)
         md.appendMarkdown(`**${hoverContent.title}**\n\n`);

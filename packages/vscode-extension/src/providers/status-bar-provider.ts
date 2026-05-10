@@ -4,7 +4,7 @@
  */
 
 import * as vscode from 'vscode';
-import { scanProject, readOrgContext } from '@ai-kit-salesforce/core';
+import { scanProject, readOrgContext } from '@sf-ai-toolkit/core';
 
 export class StatusBarProvider {
   private readonly statusBarItem: vscode.StatusBarItem;

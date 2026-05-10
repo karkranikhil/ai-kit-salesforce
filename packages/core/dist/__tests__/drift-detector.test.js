@@ -100,4 +100,24 @@ let tmpDir;
         (0, vitest_1.expect)(result.summary).toContain('2.5.0');
     });
 });
+(0, vitest_1.describe)('fetchTeamConfig', () => {
+    (0, vitest_1.it)('rejects non-https URLs', async () => {
+        const result = await (0, drift_detector_1.fetchTeamConfig)('http://example.com/team.json');
+        (0, vitest_1.expect)(result).toBeNull();
+    });
+    (0, vitest_1.it)('rejects invalid JSON payloads', async () => {
+        const originalFetch = globalThis.fetch;
+        try {
+            globalThis.fetch = (async () => new Response('{"bad":"shape"}', {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+            }));
+            const result = await (0, drift_detector_1.fetchTeamConfig)('https://example.com/team.json');
+            (0, vitest_1.expect)(result).toBeNull();
+        }
+        finally {
+            globalThis.fetch = originalFetch;
+        }
+    });
+});
 //# sourceMappingURL=drift-detector.test.js.map

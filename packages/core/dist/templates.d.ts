@@ -2,8 +2,8 @@
  * All template content is defined inline here so the package is self-contained
  * with no runtime template file dependencies.
  */
-export declare const MARKER_START = "<!-- AI-KIT-SALESFORCE:START -->";
-export declare const MARKER_END = "<!-- AI-KIT-SALESFORCE:END -->";
+export declare const MARKER_START = "<!-- SF-AI-TOOLKIT:START -->";
+export declare const MARKER_END = "<!-- SF-AI-TOOLKIT:END -->";
 export interface TemplateMap {
     [key: string]: string;
 }

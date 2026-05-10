@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SALESFORCE_DX_MODE = exports.generateClaudeMemModeJson = exports.detectAgentforceContext = exports.formatDeployPreview = exports.buildDeployPreview = exports.getHoverContent = exports.getDiagnosticSummary = exports.detectFileType = exports.analyseFile = exports.skillToPickItem = exports.formatSkillReference = exports.listInstalledSkills = exports.validateMcpConfig = exports.bootstrapMcp = exports.buildMcpConfig = exports.FILE_SIGNALS = exports.fetchTeamConfig = exports.checkTeamSync = exports.detectDrift = exports.formatOrgContext = exports.readOrgContext = exports.wrapInMarker = exports.hasTemplate = exports.getTemplate = exports.MARKER_END = exports.MARKER_START = exports.TEMPLATES = exports.generateReadinessReport = exports.writeFileSafe = exports.appendMissingLines = exports.mergePackageJsonScripts = exports.createBackup = exports.applySetup = exports.planSetup = exports.scanProject = void 0;
+exports.TOOLKIT_CONFIG_PATH = exports.DEFAULT_TOOLKIT_CONFIG = exports.loadToolkitConfig = exports.SALESFORCE_DX_MODE = exports.generateClaudeMemModeJson = exports.detectAgentforceContext = exports.formatDeployPreview = exports.buildDeployPreview = exports.getHoverContent = exports.getDiagnosticSummary = exports.detectFileType = exports.analyseFile = exports.skillToPickItem = exports.formatSkillReference = exports.listInstalledSkills = exports.validateMcpConfig = exports.bootstrapMcp = exports.buildMcpConfig = exports.FILE_SIGNALS = exports.fetchTeamConfig = exports.checkTeamSync = exports.detectDrift = exports.formatOrgContext = exports.readOrgContext = exports.wrapInMarker = exports.hasTemplate = exports.getTemplate = exports.MARKER_END = exports.MARKER_START = exports.TEMPLATES = exports.generateReadinessReport = exports.writeFileSafe = exports.appendMissingLines = exports.mergePackageJsonScripts = exports.createBackup = exports.applySetup = exports.planSetup = exports.scanProject = void 0;
 var scanner_1 = require("./scanner");
 Object.defineProperty(exports, "scanProject", { enumerable: true, get: function () { return scanner_1.scanProject; } });
 var planner_1 = require("./planner");
@@ -67,4 +67,8 @@ Object.defineProperty(exports, "detectAgentforceContext", { enumerable: true, ge
 var claude_mem_mode_1 = require("./claude-mem-mode");
 Object.defineProperty(exports, "generateClaudeMemModeJson", { enumerable: true, get: function () { return claude_mem_mode_1.generateClaudeMemModeJson; } });
 Object.defineProperty(exports, "SALESFORCE_DX_MODE", { enumerable: true, get: function () { return claude_mem_mode_1.SALESFORCE_DX_MODE; } });
+var config_1 = require("./config");
+Object.defineProperty(exports, "loadToolkitConfig", { enumerable: true, get: function () { return config_1.loadToolkitConfig; } });
+Object.defineProperty(exports, "DEFAULT_TOOLKIT_CONFIG", { enumerable: true, get: function () { return config_1.DEFAULT_TOOLKIT_CONFIG; } });
+Object.defineProperty(exports, "TOOLKIT_CONFIG_PATH", { enumerable: true, get: function () { return config_1.TOOLKIT_CONFIG_PATH; } });
 //# sourceMappingURL=index.js.map

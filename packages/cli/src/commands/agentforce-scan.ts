@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import * as path from 'path';
-import { detectAgentforceContext } from '@ai-kit-salesforce/core';
+import { detectAgentforceContext } from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 export function agentforceScanCommand(): Command {

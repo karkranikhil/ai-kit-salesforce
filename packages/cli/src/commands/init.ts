@@ -7,7 +7,7 @@ import {
   applySetup,
   generateReadinessReport,
   Preset,
-} from '@ai-kit-salesforce/core';
+} from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 const PRESETS: { title: string; value: Preset; description: string }[] = [

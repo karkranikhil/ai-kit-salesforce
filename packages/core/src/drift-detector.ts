@@ -112,6 +112,46 @@ export interface TeamSyncResult {
   summary: string;
 }
 
+function isValidTeamConfig(input: unknown): input is TeamConfig {
+  if (!input || typeof input !== 'object') return false;
+  const cfg = input as Partial<TeamConfig>;
+  if (typeof cfg.version !== 'string' || cfg.version.trim().length === 0) return false;
+  if (!Array.isArray(cfg.requiredFiles) || !cfg.requiredFiles.every((f) => typeof f === 'string')) return false;
+  if (cfg.signals !== undefined) {
+    if (typeof cfg.signals !== 'object' || cfg.signals === null) return false;
+    for (const values of Object.values(cfg.signals)) {
+      if (!Array.isArray(values) || !values.every((v) => typeof v === 'string')) return false;
+    }
+  }
+  if (cfg.description !== undefined && typeof cfg.description !== 'string') return false;
+  return true;
+}
+
+function isSafeTeamConfigUrl(rawUrl: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+
+  if (parsed.protocol !== 'https:') return false;
+  if (parsed.username || parsed.password) return false;
+
+  const host = parsed.hostname.toLowerCase();
+  if (host === 'localhost' || host === '::1') return false;
+
+  const ipv4Private =
+    /^10\./.test(host) ||
+    /^127\./.test(host) ||
+    /^192\.168\./.test(host) ||
+    /^169\.254\./.test(host) ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+  if (ipv4Private) return false;
+
+  return true;
+}
+
 export async function checkTeamSync(
   rootPath: string,
   teamConfig: TeamConfig
@@ -157,6 +197,8 @@ export async function checkTeamSync(
 /** Fetch a team config from a URL (for CLI/extension use). Returns null on failure. */
 export async function fetchTeamConfig(url: string): Promise<TeamConfig | null> {
   try {
+    if (!isSafeTeamConfigUrl(url)) return null;
+
     // Use global fetch (Node 18+) or fall back gracefully
     const fetchFn: typeof fetch =
       typeof globalThis.fetch === 'function'
@@ -169,7 +211,13 @@ export async function fetchTeamConfig(url: string): Promise<TeamConfig | null> {
     try {
       const res = await fetchFn(url, { signal: controller.signal });
       if (!res.ok) return null;
-      return (await res.json()) as TeamConfig;
+      const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+      if (contentType && !contentType.includes('application/json')) return null;
+      const text = await res.text();
+      if (text.length > 1024 * 1024) return null;
+      const parsed = JSON.parse(text) as unknown;
+      if (!isValidTeamConfig(parsed)) return null;
+      return parsed;
     } finally {
       clearTimeout(timeout);
     }

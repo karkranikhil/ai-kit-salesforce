@@ -14,7 +14,7 @@ export interface ProjectScanResult {
     hasMcpGuide: boolean;
     hasForceIgnore: boolean;
     hasMcpConfig: boolean;
-    hasJagsSkills: boolean;
+    hasAfvSkills: boolean;
     hasAfvLibraryDocs: boolean;
     hasAfvLibrarySkills: boolean;
     hasTasksTodo: boolean;
@@ -68,5 +68,25 @@ export interface ApplyResult {
     forceIgnoreUpdated: boolean;
     backupPath?: string;
     errors: string[];
+}
+export interface ToolkitConfig {
+    quality?: {
+        pmd?: {
+            enabled?: boolean;
+            /** Optional full command to run PMD or a wrapper script */
+            runCommand?: string;
+        };
+    };
+    git?: {
+        commitMessage?: {
+            enabled?: boolean;
+            /**
+             * JavaScript regex source string.
+             * Example: "^(feat|fix|docs|chore)(\\([a-z0-9_-]+\\))?: .{1,72}$"
+             */
+            pattern?: string;
+            helpText?: string;
+        };
+    };
 }
 //# sourceMappingURL=types.d.ts.map

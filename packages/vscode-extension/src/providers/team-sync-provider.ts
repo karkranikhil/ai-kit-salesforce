@@ -5,9 +5,27 @@
  */
 
 import * as vscode from 'vscode';
-import { checkTeamSync, fetchTeamConfig } from '@ai-kit-salesforce/core';
+import { checkTeamSync, fetchTeamConfig } from '@sf-ai-toolkit/core';
 
-const CONFIG_KEY = 'ai-kit-salesforce.teamConfigUrl';
+const CONFIG_KEY = 'sf-ai-toolkit.teamConfigUrl';
+
+function isAllowedTeamConfigUrl(rawUrl: string): boolean {
+  try {
+    const parsed = new URL(rawUrl);
+    return parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 export class TeamSyncProvider {
   private readonly disposables: vscode.Disposable[] = [];
@@ -29,11 +47,16 @@ export class TeamSyncProvider {
    * If up to date, does nothing.
    */
   async checkOnStartup(rootPath: string): Promise<void> {
+    if (!vscode.workspace.isTrusted) return;
     const config = vscode.workspace.getConfiguration();
     const teamConfigUrl = config.get<string>(CONFIG_KEY, '');
 
     if (!teamConfigUrl || teamConfigUrl.trim() === '') {
       // No URL configured — nothing to do
+      return;
+    }
+
+    if (!isAllowedTeamConfigUrl(teamConfigUrl.trim())) {
       return;
     }
 
@@ -65,7 +88,7 @@ export class TeamSyncProvider {
           'ai-kit-team-sync-auto',
           `AI-Kit Team Sync — v${result.configVersion}`,
           vscode.ViewColumn.One,
-          {}
+          { enableScripts: false }
         );
         panel.webview.html = buildTeamSyncHtml(result);
       }
@@ -87,19 +110,19 @@ function buildTeamSyncHtml(result: Awaited<ReturnType<typeof checkTeamSync>>): s
   const driftedRows = result.drifted
     .map(
       (d) =>
-        `<tr><td><strong>${d.relativePath}</strong></td><td class="warn">${d.reason}</td><td>${d.missingSignals.join('<br>')}</td></tr>`
+        `<tr><td><strong>${escapeHtml(d.relativePath)}</strong></td><td class="warn">${escapeHtml(d.reason)}</td><td>${d.missingSignals.map(escapeHtml).join('<br>')}</td></tr>`
     )
     .join('');
   const missingRows = result.missing
     .map(
       (m) =>
-        `<tr><td><strong>${m}</strong></td><td class="error">File not found</td><td>—</td></tr>`
+        `<tr><td><strong>${escapeHtml(m)}</strong></td><td class="error">File not found</td><td>—</td></tr>`
     )
     .join('');
   const okRows = result.upToDate
     .map(
       (f) =>
-        `<tr><td>${f}</td><td colspan="2" class="ok">✓ Up to date</td></tr>`
+        `<tr><td>${escapeHtml(f)}</td><td colspan="2" class="ok">✓ Up to date</td></tr>`
     )
     .join('');
 
@@ -111,8 +134,8 @@ function buildTeamSyncHtml(result: Awaited<ReturnType<typeof checkTeamSync>>): s
   td{padding:8px;border-bottom:1px solid #333;vertical-align:top}
   .warn{color:#ff9800} .ok{color:#4caf50} .error{color:#f44336}
 </style></head><body>
-<h1>AI-Kit Team Sync — v${result.configVersion}</h1>
-<p>${result.summary}</p>
+<h1>AI-Kit Team Sync — v${escapeHtml(result.configVersion)}</h1>
+<p>${escapeHtml(result.summary)}</p>
 <table>
   <thead><tr><th>File</th><th>Status</th><th>Details</th></tr></thead>
   <tbody>${driftedRows}${missingRows}${okRows}</tbody>

@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import * as path from 'path';
-import { detectDrift, checkTeamSync, fetchTeamConfig, TeamConfig } from '@ai-kit-salesforce/core';
+import { detectDrift, checkTeamSync, fetchTeamConfig, TeamConfig } from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 export function checkDriftCommand(): Command {

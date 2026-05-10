@@ -4,7 +4,7 @@
  */
 
 import * as vscode from 'vscode';
-import { analyseFile, detectFileType, Diagnostic as AiKitDiagnostic } from '@ai-kit-salesforce/core';
+import { analyseFile, detectFileType, Diagnostic as AiKitDiagnostic } from '@sf-ai-toolkit/core';
 
 const DEBOUNCE_MS = 400;
 
@@ -18,7 +18,7 @@ export class DiagnosticsProvider {
   }
 
   static create(context: vscode.ExtensionContext): DiagnosticsProvider {
-    const collection = vscode.languages.createDiagnosticCollection('ai-kit-salesforce-inline');
+    const collection = vscode.languages.createDiagnosticCollection('sf-ai-toolkit-inline');
     context.subscriptions.push(collection);
 
     const provider = new DiagnosticsProvider(collection);

@@ -65,7 +65,7 @@ let tmpDir;
     });
     (0, vitest_1.it)('creates backup directory with timestamp format', async () => {
         await (0, backup_1.createBackup)(tmpDir, []);
-        const backupBase = path.join(tmpDir, '.ai-kit-salesforce-backup');
+        const backupBase = path.join(tmpDir, '.sf-ai-toolkit-backup');
         const entries = await fs.readdir(backupBase);
         (0, vitest_1.expect)(entries.length).toBe(1);
         (0, vitest_1.expect)(entries[0]).toMatch(/^\d{4}-\d{2}-\d{2}-\d{6}$/);

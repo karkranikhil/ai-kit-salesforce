@@ -36,18 +36,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.addJagsSkillsCommand = addJagsSkillsCommand;
 const commander_1 = require("commander");
 const path = __importStar(require("path"));
-const core_1 = require("@ai-kit-salesforce/core");
+const core_1 = require("@sf-ai-toolkit/core");
 const ui = __importStar(require("../ui"));
-const SKILL_FILES = [
-    '.cursor/skills/salesforce-apex/SKILL.md',
-    '.cursor/skills/salesforce-lwc/SKILL.md',
-    '.cursor/skills/salesforce-flow/SKILL.md',
-    '.cursor/skills/salesforce-security-review/SKILL.md',
-    '.cursor/skills/salesforce-agentforce/SKILL.md',
-    '.cursor/skills/salesforce-data-cloud/SKILL.md',
+const SKILL_DOC_FILES = new Set([
     'docs/jags-skills.md',
     'docs/skills-ecosystem.md',
-];
+]);
 function addJagsSkillsCommand() {
     return new commander_1.Command('add-jags-skills')
         .description('Add local AI-Kit Salesforce skill templates (Cursor-compatible)')
@@ -56,7 +50,7 @@ function addJagsSkillsCommand() {
         .action(async (options) => {
         const rootPath = path.resolve(options.path ?? process.cwd());
         const dryRun = options.dryRun ?? false;
-        ui.header('Adding AI-Kit Salesforce skill templates...');
+        ui.header('Adding SF AI Toolkit skill templates...');
         console.log('');
         ui.info('These are AI-Kit local Salesforce skill templates — compatible with Cursor skills workflow.');
         ui.info('They are NOT official Jag files. See docs/jags-skills.md for Jag installation options.');
@@ -64,7 +58,7 @@ function addJagsSkillsCommand() {
         const plan = await (0, core_1.planSetup)(rootPath, { preset: 'core', dryRun });
         const skillsPlan = {
             ...plan,
-            files: plan.files.filter((f) => SKILL_FILES.includes(f.relativePath)),
+            files: plan.files.filter((f) => f.relativePath.startsWith('.cursor/skills/') || SKILL_DOC_FILES.has(f.relativePath)),
             packageJsonScripts: {},
             forceIgnoreLines: [],
         };
@@ -79,7 +73,7 @@ function addJagsSkillsCommand() {
             ui.warn('Dry run — no files were created.');
         }
         else {
-            ui.success('Skill templates created.');
+            ui.success('Skill templates created (SF AI Toolkit + AFV-compatible set).');
             console.log('');
             ui.info('TODO: To install Jag\'s actual Salesforce skills in the future:');
             ui.item('  npx skills add Jaganpro/sf-skills');

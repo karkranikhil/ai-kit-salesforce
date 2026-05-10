@@ -40,7 +40,7 @@ exports.initCommand = initCommand;
 const commander_1 = require("commander");
 const path = __importStar(require("path"));
 const prompts_1 = __importDefault(require("prompts"));
-const core_1 = require("@ai-kit-salesforce/core");
+const core_1 = require("@sf-ai-toolkit/core");
 const ui = __importStar(require("../ui"));
 const PRESETS = [
     { title: 'core', value: 'core', description: 'Standard Salesforce DX project' },

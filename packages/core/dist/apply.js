@@ -39,6 +39,14 @@ const fs = __importStar(require("fs-extra"));
 const templates_1 = require("./templates");
 const safe_write_1 = require("./safe-write");
 const backup_1 = require("./backup");
+function resolvePathInsideRoot(rootPath, relativePath) {
+    const normalizedRoot = path.resolve(rootPath);
+    const resolvedPath = path.resolve(normalizedRoot, relativePath);
+    if (resolvedPath !== normalizedRoot && !resolvedPath.startsWith(normalizedRoot + path.sep)) {
+        throw new Error(`Path escapes project root: ${relativePath}`);
+    }
+    return resolvedPath;
+}
 async function applySetup(rootPath, plan) {
     const result = {
         filesCreated: [],
@@ -52,7 +60,12 @@ async function applySetup(rootPath, plan) {
     const filesToBackup = [];
     for (const planned of plan.files) {
         if (planned.action !== 'create') {
-            filesToBackup.push(path.join(rootPath, planned.relativePath));
+            try {
+                filesToBackup.push(resolvePathInsideRoot(rootPath, planned.relativePath));
+            }
+            catch (err) {
+                result.errors.push(String(err));
+            }
         }
     }
     if (plan.forceIgnoreLines.length > 0) {
@@ -78,7 +91,14 @@ async function applySetup(rootPath, plan) {
             result.filesSkipped.push(planned.relativePath);
             continue;
         }
-        const fullPath = path.join(rootPath, planned.relativePath);
+        let fullPath;
+        try {
+            fullPath = resolvePathInsideRoot(rootPath, planned.relativePath);
+        }
+        catch (err) {
+            result.errors.push(`Failed to write ${planned.relativePath}: ${String(err)}`);
+            continue;
+        }
         const content = templates_1.TEMPLATES[planned.templateKey] ?? `# ${planned.relativePath}\n\n<!-- TODO: Add content -->\n`;
         try {
             const writeResult = await (0, safe_write_1.writeFileSafe)(fullPath, content, { dryRun: plan.dryRun });

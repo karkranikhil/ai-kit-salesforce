@@ -172,7 +172,7 @@ describe('applySetup', () => {
     const plan = await planSetup(tmpDir, { preset: 'core', dryRun: false });
     const result = await applySetup(tmpDir, plan);
 
-    const backupDir = path.join(tmpDir, '.ai-kit-salesforce-backup');
+    const backupDir = path.join(tmpDir, '.sf-ai-toolkit-backup');
     const exists = await fs.pathExists(backupDir);
     expect(exists).toBe(true);
     expect(result.backupPath).toBeDefined();

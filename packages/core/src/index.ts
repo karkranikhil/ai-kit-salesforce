@@ -24,3 +24,4 @@ export { detectAgentforceContext } from './agentforce-detector';
 export type { AgentforceContext } from './agentforce-detector';
 export { generateClaudeMemModeJson, SALESFORCE_DX_MODE } from './claude-mem-mode';
 export type { ClaudeMemMode } from './claude-mem-mode';
+export { loadToolkitConfig, DEFAULT_TOOLKIT_CONFIG, TOOLKIT_CONFIG_PATH } from './config';

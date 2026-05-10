@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import * as path from 'path';
-import { buildDeployPreview, ComponentInfo } from '@ai-kit-salesforce/core';
+import { buildDeployPreview, ComponentInfo } from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 export function deployPreviewCommand(): Command {

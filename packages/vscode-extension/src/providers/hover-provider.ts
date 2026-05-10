@@ -4,7 +4,7 @@
  */
 
 import * as vscode from 'vscode';
-import { getHoverContent } from '@ai-kit-salesforce/core';
+import { getHoverContent } from '@sf-ai-toolkit/core';
 
 export class AiKitHoverProvider implements vscode.HoverProvider {
   private readonly diagnosticCollection: vscode.DiagnosticCollection;
@@ -34,7 +34,7 @@ export class AiKitHoverProvider implements vscode.HoverProvider {
     const hoverContent = getHoverContent(ruleFile, diag.message);
 
     const md = new vscode.MarkdownString('', true);
-    md.isTrusted = true;
+    md.isTrusted = { enabledCommands: ['_vscode.open'] };
     md.supportHtml = false;
 
     // Title (bold)

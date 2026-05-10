@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import * as path from 'path';
 import prompts from 'prompts';
-import { bootstrapMcp, validateMcpConfig, readOrgContext } from '@ai-kit-salesforce/core';
+import { bootstrapMcp, validateMcpConfig, readOrgContext } from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 export function bootstrapMcpCommand(): Command {
@@ -42,7 +42,7 @@ export function bootstrapMcpCommand(): Command {
       }
 
       if (dryRun) {
-        const { buildMcpConfig } = await import('@ai-kit-salesforce/core');
+        const { buildMcpConfig } = await import('@sf-ai-toolkit/core');
         const config = buildMcpConfig({ orgAlias: orgAlias! });
         console.log('');
         ui.warn('Dry run — would write these files:');

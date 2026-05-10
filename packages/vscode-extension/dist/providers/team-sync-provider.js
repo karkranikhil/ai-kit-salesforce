@@ -40,8 +40,25 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TeamSyncProvider = void 0;
 const vscode = __importStar(require("vscode"));
-const core_1 = require("@ai-kit-salesforce/core");
-const CONFIG_KEY = 'ai-kit-salesforce.teamConfigUrl';
+const core_1 = require("@sf-ai-toolkit/core");
+const CONFIG_KEY = 'sf-ai-toolkit.teamConfigUrl';
+function isAllowedTeamConfigUrl(rawUrl) {
+    try {
+        const parsed = new URL(rawUrl);
+        return parsed.protocol === 'https:';
+    }
+    catch {
+        return false;
+    }
+}
+function escapeHtml(value) {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 class TeamSyncProvider {
     constructor() {
         this.disposables = [];
@@ -58,10 +75,15 @@ class TeamSyncProvider {
      * If up to date, does nothing.
      */
     async checkOnStartup(rootPath) {
+        if (!vscode.workspace.isTrusted)
+            return;
         const config = vscode.workspace.getConfiguration();
         const teamConfigUrl = config.get(CONFIG_KEY, '');
         if (!teamConfigUrl || teamConfigUrl.trim() === '') {
             // No URL configured — nothing to do
+            return;
+        }
+        if (!isAllowedTeamConfigUrl(teamConfigUrl.trim())) {
             return;
         }
         // Silently fetch in background
@@ -81,7 +103,7 @@ class TeamSyncProvider {
             const action = await vscode.window.showInformationMessage(`AI-Kit: ${issueCount} drift issue(s) found vs team config v${result.configVersion}. ${result.drifted.length} drifted, ${result.missing.length} missing.`, 'View Report');
             if (action === 'View Report') {
                 // Open a webview with the drift report
-                const panel = vscode.window.createWebviewPanel('ai-kit-team-sync-auto', `AI-Kit Team Sync — v${result.configVersion}`, vscode.ViewColumn.One, {});
+                const panel = vscode.window.createWebviewPanel('ai-kit-team-sync-auto', `AI-Kit Team Sync — v${result.configVersion}`, vscode.ViewColumn.One, { enableScripts: false });
                 panel.webview.html = buildTeamSyncHtml(result);
             }
         }
@@ -99,13 +121,13 @@ exports.TeamSyncProvider = TeamSyncProvider;
 // ─── Helper HTML builder ──────────────────────────────────────────────────────
 function buildTeamSyncHtml(result) {
     const driftedRows = result.drifted
-        .map((d) => `<tr><td><strong>${d.relativePath}</strong></td><td class="warn">${d.reason}</td><td>${d.missingSignals.join('<br>')}</td></tr>`)
+        .map((d) => `<tr><td><strong>${escapeHtml(d.relativePath)}</strong></td><td class="warn">${escapeHtml(d.reason)}</td><td>${d.missingSignals.map(escapeHtml).join('<br>')}</td></tr>`)
         .join('');
     const missingRows = result.missing
-        .map((m) => `<tr><td><strong>${m}</strong></td><td class="error">File not found</td><td>—</td></tr>`)
+        .map((m) => `<tr><td><strong>${escapeHtml(m)}</strong></td><td class="error">File not found</td><td>—</td></tr>`)
         .join('');
     const okRows = result.upToDate
-        .map((f) => `<tr><td>${f}</td><td colspan="2" class="ok">✓ Up to date</td></tr>`)
+        .map((f) => `<tr><td>${escapeHtml(f)}</td><td colspan="2" class="ok">✓ Up to date</td></tr>`)
         .join('');
     return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <style>
@@ -115,8 +137,8 @@ function buildTeamSyncHtml(result) {
   td{padding:8px;border-bottom:1px solid #333;vertical-align:top}
   .warn{color:#ff9800} .ok{color:#4caf50} .error{color:#f44336}
 </style></head><body>
-<h1>AI-Kit Team Sync — v${result.configVersion}</h1>
-<p>${result.summary}</p>
+<h1>AI-Kit Team Sync — v${escapeHtml(result.configVersion)}</h1>
+<p>${escapeHtml(result.summary)}</p>
 <table>
   <thead><tr><th>File</th><th>Status</th><th>Details</th></tr></thead>
   <tbody>${driftedRows}${missingRows}${okRows}</tbody>

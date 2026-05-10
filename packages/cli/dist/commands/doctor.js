@@ -36,7 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.doctorCommand = doctorCommand;
 const commander_1 = require("commander");
 const path = __importStar(require("path"));
-const core_1 = require("@ai-kit-salesforce/core");
+const fs = __importStar(require("fs-extra"));
+const core_1 = require("@sf-ai-toolkit/core");
 const ui = __importStar(require("../ui"));
 function doctorCommand() {
     return new commander_1.Command('doctor')
@@ -60,6 +61,16 @@ function doctorCommand() {
         console.log('');
         const result = await (0, core_1.scanProject)(rootPath);
         console.log((0, core_1.generateReadinessReport)(result));
+        // ── Policy source ────────────────────────────────────────────────────
+        const configPath = path.join(rootPath, core_1.TOOLKIT_CONFIG_PATH);
+        const hasProjectConfig = await fs.pathExists(configPath);
+        const cfg = await (0, core_1.loadToolkitConfig)(rootPath);
+        ui.bold('Policy source:');
+        ui.info(hasProjectConfig
+            ? `Using project config: ${core_1.TOOLKIT_CONFIG_PATH}`
+            : `Using built-in defaults (no ${core_1.TOOLKIT_CONFIG_PATH} found)`);
+        ui.item(`  PMD hook: ${cfg.quality?.pmd?.enabled ? 'enabled' : 'disabled'}`);
+        ui.item(`  Commit message policy: ${cfg.git?.commitMessage?.enabled ? 'enabled' : 'disabled'}`);
         // ── MCP config validation ────────────────────────────────────────────
         const mcpPaths = [
             { label: '.cursor/mcp.json', p: path.join(rootPath, '.cursor', 'mcp.json') },

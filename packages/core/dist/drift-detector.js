@@ -108,6 +108,50 @@ async function detectDrift(rootPath, filesToCheck) {
     }));
     return { drifted, missing, upToDate };
 }
+function isValidTeamConfig(input) {
+    if (!input || typeof input !== 'object')
+        return false;
+    const cfg = input;
+    if (typeof cfg.version !== 'string' || cfg.version.trim().length === 0)
+        return false;
+    if (!Array.isArray(cfg.requiredFiles) || !cfg.requiredFiles.every((f) => typeof f === 'string'))
+        return false;
+    if (cfg.signals !== undefined) {
+        if (typeof cfg.signals !== 'object' || cfg.signals === null)
+            return false;
+        for (const values of Object.values(cfg.signals)) {
+            if (!Array.isArray(values) || !values.every((v) => typeof v === 'string'))
+                return false;
+        }
+    }
+    if (cfg.description !== undefined && typeof cfg.description !== 'string')
+        return false;
+    return true;
+}
+function isSafeTeamConfigUrl(rawUrl) {
+    let parsed;
+    try {
+        parsed = new URL(rawUrl);
+    }
+    catch {
+        return false;
+    }
+    if (parsed.protocol !== 'https:')
+        return false;
+    if (parsed.username || parsed.password)
+        return false;
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'localhost' || host === '::1')
+        return false;
+    const ipv4Private = /^10\./.test(host) ||
+        /^127\./.test(host) ||
+        /^192\.168\./.test(host) ||
+        /^169\.254\./.test(host) ||
+        /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+    if (ipv4Private)
+        return false;
+    return true;
+}
 async function checkTeamSync(rootPath, teamConfig) {
     const mergedSignals = {
         ...FILE_SIGNALS,
@@ -144,6 +188,8 @@ async function checkTeamSync(rootPath, teamConfig) {
 /** Fetch a team config from a URL (for CLI/extension use). Returns null on failure. */
 async function fetchTeamConfig(url) {
     try {
+        if (!isSafeTeamConfigUrl(url))
+            return null;
         // Use global fetch (Node 18+) or fall back gracefully
         const fetchFn = typeof globalThis.fetch === 'function'
             ? globalThis.fetch
@@ -155,7 +201,16 @@ async function fetchTeamConfig(url) {
             const res = await fetchFn(url, { signal: controller.signal });
             if (!res.ok)
                 return null;
-            return (await res.json());
+            const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+            if (contentType && !contentType.includes('application/json'))
+                return null;
+            const text = await res.text();
+            if (text.length > 1024 * 1024)
+                return null;
+            const parsed = JSON.parse(text);
+            if (!isValidTeamConfig(parsed))
+                return null;
+            return parsed;
         }
         finally {
             clearTimeout(timeout);

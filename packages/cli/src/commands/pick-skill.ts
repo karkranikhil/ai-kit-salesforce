@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import * as path from 'path';
-import { listInstalledSkills } from '@ai-kit-salesforce/core';
+import { listInstalledSkills } from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 export function pickSkillCommand(): Command {

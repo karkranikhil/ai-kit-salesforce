@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.addAfvLibraryCommand = addAfvLibraryCommand;
 const commander_1 = require("commander");
 const path = __importStar(require("path"));
-const core_1 = require("@ai-kit-salesforce/core");
+const core_1 = require("@sf-ai-toolkit/core");
 const ui = __importStar(require("../ui"));
 const AFV_FILES = ['docs/afv-library.md', 'docs/skills-ecosystem.md'];
 function addAfvLibraryCommand() {

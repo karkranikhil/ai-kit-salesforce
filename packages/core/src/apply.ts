@@ -5,6 +5,15 @@ import { TEMPLATES } from './templates';
 import { writeFileSafe, appendMissingLines, mergePackageJsonScripts } from './safe-write';
 import { createBackup } from './backup';
 
+function resolvePathInsideRoot(rootPath: string, relativePath: string): string {
+  const normalizedRoot = path.resolve(rootPath);
+  const resolvedPath = path.resolve(normalizedRoot, relativePath);
+  if (resolvedPath !== normalizedRoot && !resolvedPath.startsWith(normalizedRoot + path.sep)) {
+    throw new Error(`Path escapes project root: ${relativePath}`);
+  }
+  return resolvedPath;
+}
+
 export async function applySetup(rootPath: string, plan: SetupPlan): Promise<ApplyResult> {
   const result: ApplyResult = {
     filesCreated: [],
@@ -19,7 +28,11 @@ export async function applySetup(rootPath: string, plan: SetupPlan): Promise<App
   const filesToBackup: string[] = [];
   for (const planned of plan.files) {
     if (planned.action !== 'create') {
-      filesToBackup.push(path.join(rootPath, planned.relativePath));
+      try {
+        filesToBackup.push(resolvePathInsideRoot(rootPath, planned.relativePath));
+      } catch (err) {
+        result.errors.push(String(err));
+      }
     }
   }
   if (plan.forceIgnoreLines.length > 0) {
@@ -46,7 +59,13 @@ export async function applySetup(rootPath: string, plan: SetupPlan): Promise<App
       continue;
     }
 
-    const fullPath = path.join(rootPath, planned.relativePath);
+    let fullPath: string;
+    try {
+      fullPath = resolvePathInsideRoot(rootPath, planned.relativePath);
+    } catch (err) {
+      result.errors.push(`Failed to write ${planned.relativePath}: ${String(err)}`);
+      continue;
+    }
     const content = TEMPLATES[planned.templateKey] ?? `# ${planned.relativePath}\n\n<!-- TODO: Add content -->\n`;
 
     try {

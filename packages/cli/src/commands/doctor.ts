@@ -1,12 +1,15 @@
 import { Command } from 'commander';
 import * as path from 'path';
+import * as fs from 'fs-extra';
 import {
   scanProject,
   generateReadinessReport,
   readOrgContext,
   detectDrift,
   validateMcpConfig,
-} from '@ai-kit-salesforce/core';
+  loadToolkitConfig,
+  TOOLKIT_CONFIG_PATH,
+} from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 export function doctorCommand(): Command {
@@ -33,6 +36,19 @@ export function doctorCommand(): Command {
       console.log('');
       const result = await scanProject(rootPath);
       console.log(generateReadinessReport(result));
+
+      // ── Policy source ────────────────────────────────────────────────────
+      const configPath = path.join(rootPath, TOOLKIT_CONFIG_PATH);
+      const hasProjectConfig = await fs.pathExists(configPath);
+      const cfg = await loadToolkitConfig(rootPath);
+      ui.bold('Policy source:');
+      ui.info(
+        hasProjectConfig
+          ? `Using project config: ${TOOLKIT_CONFIG_PATH}`
+          : `Using built-in defaults (no ${TOOLKIT_CONFIG_PATH} found)`
+      );
+      ui.item(`  PMD hook: ${cfg.quality?.pmd?.enabled ? 'enabled' : 'disabled'}`);
+      ui.item(`  Commit message policy: ${cfg.git?.commitMessage?.enabled ? 'enabled' : 'disabled'}`);
 
       // ── MCP config validation ────────────────────────────────────────────
       const mcpPaths = [

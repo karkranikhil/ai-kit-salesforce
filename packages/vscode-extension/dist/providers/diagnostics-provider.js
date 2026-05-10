@@ -39,7 +39,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiagnosticsProvider = void 0;
 const vscode = __importStar(require("vscode"));
-const core_1 = require("@ai-kit-salesforce/core");
+const core_1 = require("@sf-ai-toolkit/core");
 const DEBOUNCE_MS = 400;
 class DiagnosticsProvider {
     constructor(collection) {
@@ -48,7 +48,7 @@ class DiagnosticsProvider {
         this.collection = collection;
     }
     static create(context) {
-        const collection = vscode.languages.createDiagnosticCollection('ai-kit-salesforce-inline');
+        const collection = vscode.languages.createDiagnosticCollection('sf-ai-toolkit-inline');
         context.subscriptions.push(collection);
         const provider = new DiagnosticsProvider(collection);
         // Register document event listeners

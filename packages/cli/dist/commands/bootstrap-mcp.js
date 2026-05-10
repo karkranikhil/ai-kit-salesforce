@@ -40,7 +40,7 @@ exports.bootstrapMcpCommand = bootstrapMcpCommand;
 const commander_1 = require("commander");
 const path = __importStar(require("path"));
 const prompts_1 = __importDefault(require("prompts"));
-const core_1 = require("@ai-kit-salesforce/core");
+const core_1 = require("@sf-ai-toolkit/core");
 const ui = __importStar(require("../ui"));
 function bootstrapMcpCommand() {
     return new commander_1.Command('bootstrap-mcp')
@@ -74,7 +74,7 @@ function bootstrapMcpCommand() {
             orgAlias = response.org;
         }
         if (dryRun) {
-            const { buildMcpConfig } = await Promise.resolve().then(() => __importStar(require('@ai-kit-salesforce/core')));
+            const { buildMcpConfig } = await Promise.resolve().then(() => __importStar(require('@sf-ai-toolkit/core')));
             const config = buildMcpConfig({ orgAlias: orgAlias });
             console.log('');
             ui.warn('Dry run — would write these files:');

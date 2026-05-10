@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { generateClaudeMemModeJson } from '@ai-kit-salesforce/core';
+import { generateClaudeMemModeJson } from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 export function addClaudeMemCommand(): Command {

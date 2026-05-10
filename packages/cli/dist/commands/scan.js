@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.scanCommand = scanCommand;
 const commander_1 = require("commander");
 const path = __importStar(require("path"));
-const core_1 = require("@ai-kit-salesforce/core");
+const core_1 = require("@sf-ai-toolkit/core");
 const ui = __importStar(require("../ui"));
 function scanCommand() {
     return new commander_1.Command('scan')

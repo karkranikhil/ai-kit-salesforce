@@ -1,15 +1,15 @@
-# @ai-kit-salesforce/core
+# @sf-ai-toolkit/core
 
-Core engine for [AI-Kit for Salesforce](https://marketplace.visualstudio.com/items?itemName=ai-kit-salesforce.ai-kit-salesforce).
+Core engine for [SF AI Toolkit](https://marketplace.visualstudio.com/items?itemName=NikhilKarkra.sf-ai-toolkit).
 
-This package contains all the logic used by the CLI and VS Code extension — scanning, file generation, inline diagnostics, MCP bootstrap, drift detection, and more. Use it if you want to build your own tooling on top of AI-Kit.
+This package contains all the logic used by the CLI and VS Code extension — scanning, file generation, inline diagnostics, MCP bootstrap, drift detection, and more. Use it if you want to build your own tooling on top of SF AI Toolkit.
 
 ---
 
 ## Installation
 
 ```bash
-npm install @ai-kit-salesforce/core
+npm install @sf-ai-toolkit/core
 ```
 
 ---
@@ -25,7 +25,7 @@ import {
   detectFileType,
   bootstrapMcp,
   detectDrift,
-} from '@ai-kit-salesforce/core';
+} from '@sf-ai-toolkit/core';
 
 // Scan a Salesforce DX project and get an AI readiness score
 const result = await scanProject('/path/to/sf/project');
@@ -95,8 +95,8 @@ const mcp = await bootstrapMcp('/path/to/sf/project', { orgAlias: 'my-sandbox' }
 
 ## Related
 
-- [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=ai-kit-salesforce.ai-kit-salesforce) — install this if you want the editor experience
-- [@ai-kit-salesforce/cli](https://www.npmjs.com/package/@ai-kit-salesforce/cli) — install this if you want terminal commands
+- [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=NikhilKarkra.sf-ai-toolkit) — install this if you want the editor experience
+- [@sf-ai-toolkit/cli](https://www.npmjs.com/package/@sf-ai-toolkit/cli) — install this if you want terminal commands
 
 ---
 

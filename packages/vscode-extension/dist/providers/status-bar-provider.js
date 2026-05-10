@@ -39,7 +39,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatusBarProvider = void 0;
 const vscode = __importStar(require("vscode"));
-const core_1 = require("@ai-kit-salesforce/core");
+const core_1 = require("@sf-ai-toolkit/core");
 class StatusBarProvider {
     constructor(statusBarItem) {
         this.disposables = [];

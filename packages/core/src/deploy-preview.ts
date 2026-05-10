@@ -121,12 +121,27 @@ async function hasDestructiveChanges(rootPath: string): Promise<boolean> {
   return results.some(Boolean);
 }
 
+function isSafeSourceDir(sourceDir: string): boolean {
+  if (sourceDir.trim().length === 0) return false;
+  if (path.isAbsolute(sourceDir)) return false;
+  if (sourceDir.includes('\0')) return false;
+  if (sourceDir.split(/[\\/]/).some((segment) => segment === '..')) return false;
+  return /^[a-zA-Z0-9._\-/]+$/.test(sourceDir);
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, `'\"'\"'`)}'`;
+}
+
 /**
  * Build a deploy preview for the given project root.
  * All found components are treated as "to add" (we don't have org-side state without auth).
  */
 export async function buildDeployPreview(options: DeployPreviewOptions): Promise<DeployPreviewResult> {
   const { rootPath, sourceDir = 'force-app' } = options;
+  if (!isSafeSourceDir(sourceDir)) {
+    throw new Error(`Invalid sourceDir: ${sourceDir}`);
+  }
   const sourceDirPath = path.join(rootPath, sourceDir);
 
   // Resolve org context
@@ -168,8 +183,9 @@ export async function buildDeployPreview(options: DeployPreviewOptions): Promise
     risks.push('⚠ Target org appears to be production — explicit confirmation required');
   }
 
-  const validationCommand = `sf project deploy validate --source-dir ${sourceDir} --test-level RunLocalTests --wait 60`;
-  const deployCommand = `sf project deploy start --source-dir ${sourceDir} --test-level RunLocalTests --wait 60`;
+  const quotedSourceDir = shellQuote(sourceDir);
+  const validationCommand = `sf project deploy validate --source-dir ${quotedSourceDir} --test-level RunLocalTests --wait 60`;
+  const deployCommand = `sf project deploy start --source-dir ${quotedSourceDir} --test-level RunLocalTests --wait 60`;
 
   return {
     targetOrg: resolvedOrg,

@@ -180,7 +180,7 @@ let tmpDir;
         await fs.writeFile(path.join(tmpDir, 'package.json'), JSON.stringify({ name: 'test' }));
         const plan = await (0, planner_1.planSetup)(tmpDir, { preset: 'core', dryRun: false });
         const result = await (0, apply_1.applySetup)(tmpDir, plan);
-        const backupDir = path.join(tmpDir, '.ai-kit-salesforce-backup');
+        const backupDir = path.join(tmpDir, '.sf-ai-toolkit-backup');
         const exists = await fs.pathExists(backupDir);
         (0, vitest_1.expect)(exists).toBe(true);
         (0, vitest_1.expect)(result.backupPath).toBeDefined();

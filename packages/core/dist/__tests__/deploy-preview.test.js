@@ -120,9 +120,14 @@ let tmpDir;
     (0, vitest_1.it)('includes correct validation and deploy commands', async () => {
         const result = await (0, deploy_preview_1.buildDeployPreview)({ rootPath: tmpDir });
         (0, vitest_1.expect)(result.validationCommand).toContain('sf project deploy validate');
+        (0, vitest_1.expect)(result.validationCommand).toContain("'force-app'");
         (0, vitest_1.expect)(result.validationCommand).toContain('RunLocalTests');
         (0, vitest_1.expect)(result.deployCommand).toContain('sf project deploy start');
+        (0, vitest_1.expect)(result.deployCommand).toContain("'force-app'");
         (0, vitest_1.expect)(result.deployCommand).toContain('RunLocalTests');
+    });
+    (0, vitest_1.it)('rejects unsafe sourceDir values', async () => {
+        await (0, vitest_1.expect)((0, deploy_preview_1.buildDeployPreview)({ rootPath: tmpDir, sourceDir: '../force-app' })).rejects.toThrow('Invalid sourceDir');
     });
 });
 (0, vitest_1.describe)('formatDeployPreview', () => {

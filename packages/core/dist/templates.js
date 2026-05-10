@@ -8,8 +8,8 @@ exports.TEMPLATES = exports.MARKER_END = exports.MARKER_START = void 0;
 exports.getTemplate = getTemplate;
 exports.hasTemplate = hasTemplate;
 exports.wrapInMarker = wrapInMarker;
-exports.MARKER_START = '<!-- AI-KIT-SALESFORCE:START -->';
-exports.MARKER_END = '<!-- AI-KIT-SALESFORCE:END -->';
+exports.MARKER_START = '<!-- SF-AI-TOOLKIT:START -->';
+exports.MARKER_END = '<!-- SF-AI-TOOLKIT:END -->';
 exports.TEMPLATES = {
     // ─── Root markdown ──────────────────────────────────────────────────────────
     'AGENTS.md': `# AGENTS.md — AI Tool Usage Guide
@@ -46,13 +46,14 @@ force-app/
 - Use scratch orgs or sandboxes for development.
 - Never run destructive operations against production without explicit confirmation.
 
-## Cursor and Claude Code Usage
+## AI Tool Coverage Matrix
 
-- Cursor uses \`.cursor/rules/\` for project-wide AI coding rules.
-- Cursor uses \`.cursor/skills/\` for domain-specific Salesforce guidance.
-- Claude Code uses \`CLAUDE.md\` for project rules.
-- Claude Code uses \`.claude/commands/\` for slash commands.
-- Claude Code uses \`.claude/agents/\` for specialised subagents.
+- Cursor: \`.cursor/rules/\` + \`.cursor/skills/\`
+- Claude Code: \`CLAUDE.md\` + \`.claude/commands/\` + \`.claude/agents/\`
+- Codex CLI: \`AI_INSTRUCTIONS.md\` + project docs in \`docs/\`
+- Antigravity or other agentic tools: \`AI_INSTRUCTIONS.md\` + \`AGENTS.md\`
+
+Use \`AI_INSTRUCTIONS.md\` as the canonical cross-tool policy file and keep tool-specific files in sync.
 
 ## Salesforce DX MCP Usage
 
@@ -167,6 +168,25 @@ Rules:
   - Test strategy
   - Deployment validation
   - Documentation review
+
+### Subagent Skill Binding (Required)
+
+Subagents do not reliably auto-load project skills. Always bind required skills explicitly in the prompt.
+
+Required mapping:
+- Apex subagent: \`salesforce-apex\`, \`salesforce-apex-tests\`
+- LWC subagent: \`salesforce-lwc\`
+- Integrator subagent: \`salesforce-architect\`, \`salesforce-deployment\`
+- Security subagent: \`salesforce-security-review\`
+
+Prompt pattern:
+- "Use skills: <comma-separated skill names>"
+- "Follow \`AI_INSTRUCTIONS.md\`, \`AGENTS.md\`, and relevant \`.cursor/rules/*.mdc\` files"
+
+For parallel execution:
+- Assign explicit file ownership per subagent (no overlap).
+- Require an integration pass by a dedicated integrator subagent.
+- Require final verification before completion.
 
 ## 3. Self-Improvement Loop
 
@@ -400,52 +420,43 @@ This is a Salesforce DX project. Use \`sf\` CLI commands (not deprecated \`sfdx\
 
 Source lives under \`force-app/\`. Configuration is in \`sfdx-project.json\`.
 
-## Salesforce DX Rules
+## AI Tool Setup
 
-- Read existing files before making changes.
-- Follow existing naming conventions and patterns.
-- Do not create files outside \`force-app/\` unless explicitly asked.
-- Prefer Permission Sets and Permission Set Groups over Profiles.
-- Bulkify all Apex: no SOQL or DML inside loops.
-- Use \`with sharing\` by default.
-- Avoid hardcoded IDs. Use Custom Metadata for configurable values.
-- Enforce CRUD/FLS where needed.
-- Use Named Credentials for callouts.
-- Add \`@SuppressWarnings('PMD')\` only with a written justification.
+This project is configured for multiple AI tools. Each reads its own config file:
 
-## MCP Rules
+| AI Tool | Config File |
+|---------|-------------|
+| Claude Code | \`CLAUDE.md\` (this file) + \`.claude/commands/\` + \`.claude/agents/\` |
+| Cursor | \`.cursor/rules/\` + \`.cursor/skills/\` |
+| Windsurf | \`.windsurfrules\` |
+| GitHub Copilot | \`.github/copilot-instructions.md\` |
+| Any MCP-capable tool | \`.mcp.json\` |
 
-- Prefer Salesforce DX MCP for org operations where available.
-- Use MCP for: list orgs, metadata queries, data queries, deploys, LWC expert guidance.
-- Fall back to \`sf\` CLI only if MCP is unavailable.
-- Confirm org alias before any write operation.
-- Use read-only mode for production orgs.
+All tools share the canonical policy in \`AI_INSTRUCTIONS.md\` and \`AGENTS.md\`.
 
-## Security Rules
+## Skills
 
-- Never expose secrets, tokens, session IDs, JWTs, or private keys.
-- Never log or paste sensitive customer data.
-- Do not run anonymous Apex that mutates data without explicit approval.
-- Do not make production changes without human confirmation.
-- Avoid destructive metadata operations.
-- Do not store credentials or create auth files.
-- Do not collect telemetry.
+Skill templates live under \`.cursor/skills/\` and follow the [agentskills.io](https://agentskills.io) SKILL.md specification. Reference them in Cursor or Claude by typing \`@skill-name\`.
 
-## Testing Rules
+**SF AI Toolkit skills (11) — architect-level:**
+- \`@salesforce-apex\` — Service/Selector/Domain, bulkification, \`WITH USER_MODE\`, governor limits
+- \`@salesforce-lwc\` — Wire adapters, reactivity, SLDS 2, accessibility
+- \`@salesforce-flow\` — Flow design, bulkification, fault handling, best practices
+- \`@salesforce-security-review\` — CRUD/FLS, SOQL injection, sharing model, permissions
+- \`@salesforce-agentforce\` — Atlas Reasoning Engine, topics, actions, testing
+- \`@salesforce-data-cloud\` — Ingestion, segmentation, activation, privacy
+- \`@salesforce-apex-tests\` — @IsTest patterns, mocks, governors, 85%+ coverage
+- \`@salesforce-deployment\` — Validate-first, destructive changes, rollback safety
+- \`@salesforce-pr-review\` — PR checklist: security, coverage, API versions
+- \`@salesforce-commit-message\` — Conventional Commits for Salesforce DX
+- \`@salesforce-permissions\` — Permission sets, profiles, security model
 
-- Write Apex tests for every class you create or modify.
-- Cover: positive cases, negative cases, bulk scenarios (200+ records), and security (with/without sharing).
-- Use \`@TestSetup\` for shared test data. Use \`Test.startTest()\` / \`Test.stopTest()\` around DML.
-- Do not use \`SeeAllData=true\` unless explicitly required.
-- Run tests with: \`npm run test:apex\`
-
-## Deployment Rules
-
-- Validate before deploying: \`npm run validate\`
-- Confirm target org alias before every deploy.
-- Do not deploy Profiles unless explicitly required.
-- Explain deployment impact before running deploy commands.
-- Never deploy to production without explicit human confirmation.
+**AFV Library skills (29) — Salesforce-official:**
+- \`@afv-generating-apex\`, \`@afv-generating-apex-test\`, \`@afv-generating-flow\`
+- \`@afv-developing-agentforce\`, \`@afv-testing-agentforce\`, \`@afv-observing-agentforce\`
+- \`@afv-building-ui-bundle-app\`, \`@afv-building-ui-bundle-frontend\`, \`@afv-deploying-ui-bundle\`
+- \`@afv-generating-custom-object\`, \`@afv-generating-custom-field\`, \`@afv-generating-permission-set\`
+- And 17 more — see \`docs/afv-library.md\` for the full list.
 
 ## Subagents
 
@@ -455,6 +466,86 @@ Use subagents from \`.claude/agents/\` for non-trivial work:
 - \`lwc-developer\` — LWC components, JS, HTML, CSS, Apex integration
 - \`qa-tester\` — test strategy, Apex tests, LWC tests, regression
 - \`security-reviewer\` — security, CRUD/FLS, sharing, SOQL injection, production risks
+
+## Slash Commands
+
+Use commands from \`.claude/commands/\` for common workflows:
+- \`/review-security\` — run a full security review checklist
+- \`/validate-deploy\` — validate before deploying to any org
+- \`/write-tests\` — generate Apex test class for a given class
+- \`/create-apex\` — scaffold a new Apex service/selector/domain class
+- \`/create-lwc\` — scaffold a new LWC component
+- \`/prepare-pr\` — generate PR description with checklist
+
+## Salesforce DX Rules
+
+- Read existing files before making changes.
+- Follow existing naming conventions and patterns.
+- Do not create files outside \`force-app/\` unless explicitly asked.
+- Prefer Permission Sets and Permission Set Groups over Profiles.
+- Bulkify all Apex: no SOQL or DML inside loops.
+- Use \`with sharing\` by default. Use \`WITH USER_MODE\` on all SOQL queries.
+- Avoid hardcoded IDs. Use Custom Metadata for configurable values.
+- Enforce CRUD/FLS — \`WITH USER_MODE\` is the preferred modern approach.
+- Use Named Credentials for callouts.
+- Add \`@SuppressWarnings('PMD')\` only with a written justification.
+
+## Apex Architecture
+
+Follow the Service/Selector/Domain pattern:
+- **Service layer** — business logic, called by triggers, LWC, APIs, invocable actions
+- **Selector layer** — all SOQL queries, enforces sharing, returns typed SObject lists
+- **Domain layer** — DML operations, trigger logic, object-specific validation rules
+- **Trigger handlers** — thin, delegate immediately to Domain or Service
+
+## MCP Rules
+
+- Prefer Salesforce DX MCP for org operations where available.
+- Use MCP for: list orgs, metadata queries, data queries, deploys, LWC expert guidance.
+- Fall back to \`sf\` CLI only if MCP is unavailable.
+- Confirm org alias before any write operation.
+- Use read-only mode for production orgs.
+- See \`docs/mcp-usage.md\` for full config reference.
+
+## Security Rules
+
+- Never expose secrets, tokens, session IDs, JWTs, or private keys.
+- Never log or paste sensitive customer data.
+- Do not run anonymous Apex that mutates data without explicit approval.
+- Do not make production changes without human confirmation.
+- Avoid destructive metadata operations without a preview step first.
+- Do not store credentials or create auth files.
+- Do not collect telemetry.
+- See \`docs/security.md\` for the full security checklist.
+
+## Testing Rules
+
+- Write Apex tests for every class you create or modify.
+- Cover: positive cases, negative cases, bulk scenarios (200+ records), and security (with/without sharing).
+- Use \`@TestSetup\` for shared test data. Use \`Test.startTest()\` / \`Test.stopTest()\` around DML.
+- Do not use \`SeeAllData=true\` unless explicitly required.
+- Target 85%+ coverage. 75% is the hard minimum.
+- Run tests with: \`npm run test:apex\`
+- See \`docs/testing.md\` for full test strategy.
+
+## Deployment Rules
+
+- Validate before deploying: \`npm run validate\`
+- Confirm target org alias before every deploy.
+- Do not deploy Profiles unless explicitly required.
+- Explain deployment impact before running deploy commands.
+- Never deploy to production without explicit human confirmation.
+- See \`docs/deployment.md\` for the full deployment runbook.
+
+## Agentforce Rules
+
+When building Agentforce agents:
+- Use Atlas Reasoning Engine for multi-step orchestration.
+- Define Topics with clear scope boundaries and discrete actions.
+- Invocable actions must be bulkified and respect object-level sharing.
+- Test agent behaviour with the Agentforce Testing framework before deploying.
+- Reference \`@salesforce-agentforce\` and \`@afv-developing-agentforce\` skills.
+- See \`docs/agentforce-vibes-setup.md\` for the full Agentforce Vibes setup guide.
 `,
     // ─── Cursor rules ───────────────────────────────────────────────────────────
     '.cursor/rules/salesforce-mcp.mdc': `---
@@ -689,236 +780,2322 @@ alwaysApply: true
 - Never expose internal data through guest user accessible components.
 `,
     // ─── Cursor skills ──────────────────────────────────────────────────────────
-    '.cursor/skills/salesforce-apex/SKILL.md': `# Salesforce Apex Skill
+    '.cursor/skills/salesforce-apex/SKILL.md': `---
+name: salesforce-apex
+description: "Production-grade Apex authoring: Service/Selector/Domain pattern, bulkification, USER_MODE, governor limits, and test coverage."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
 
-> AI-Kit Salesforce skill template — compatible with Cursor skills workflow.
-> This is a local project-level skill, not an official Jag or AFV Library file.
+# Salesforce Apex Skill
+
+> SF AI Toolkit — project-level skill. AFV Library reference: forcedotcom/afv-library (generating-apex, generating-apex-test).
 
 ## When to Use
 
-Load this skill when:
-- Writing new Apex classes, triggers, or batch jobs
-- Reviewing existing Apex for security or quality issues
-- Creating invocable actions or scheduled jobs
-- Writing Apex tests
+- Writing new Apex classes, triggers, batch jobs, queueables, or REST resources
+- Reviewing existing Apex for quality, security, or governor limit issues
+- Creating invocable actions for Flow or Agentforce
+- Refactoring legacy Apex to follow modern patterns
 
-## Rules
+## Architecture Patterns
 
-1. **Bulkify everything.** Collections in, collections out.
-2. **No SOQL or DML inside loops.** Use maps and collections.
-3. **Use \`with sharing\` by default.**
-4. **Avoid hardcoded IDs.** Use Custom Metadata or Custom Labels.
-5. **Enforce CRUD/FLS** with \`Schema.DescribeFieldResult\` checks where needed.
-6. **Use Named Credentials** for callouts — never hardcode endpoints or auth.
-7. **Use Service/Selector/Domain pattern** for clean separation of concerns.
-8. **Write meaningful test methods** — not just to hit coverage numbers.
+Use the **Service / Selector / Domain** layered pattern:
+
+| Layer | Responsibility | Naming |
+|-------|---------------|--------|
+| **Selector** | All SOQL queries, enforce FLS with \`WITH USER_MODE\` | \`AccountSelector\` |
+| **Domain** | Business logic on a single SObject collection | \`Accounts\` |
+| **Service** | Orchestrate cross-object operations, call external systems | \`AccountService\` |
+| **Controller** | Thin LWC/VF entry point — delegates to Service immediately | \`AccountController\` |
+
+Never put SOQL or DML directly in a Controller or trigger handler.
+
+## Hard Rules (never break these)
+
+1. **No SOQL or DML inside loops.** Collect records first, operate outside the loop.
+2. **Explicit sharing keyword on every class.** Use \`with sharing\` unless there is a documented security exception approved by the architect.
+3. **Enforce USER_MODE on all SOQL.** \`[SELECT Id FROM Account WITH USER_MODE]\` — this enforces both CRUD and FLS.
+4. **Bulkify everything.** Methods must accept and return collections (\`List<>\`, \`Map<>\`). Never write a method that loops internally to call a single-record method.
+5. **Named Credentials for all callouts.** No hardcoded endpoints, auth tokens, or credentials anywhere.
+6. **No hardcoded IDs.** Use Custom Metadata, Custom Labels, or Custom Settings.
+7. **Meaningful exception handling.** Never swallow exceptions silently. Log with context; rethrow or surface to the user.
+8. **Test behaviour, not coverage.** Every test asserts an outcome. 85%+ coverage target; 100% on Service and Domain layers.
+
+## Class Type Patterns
+
+**Batch Apex**
+\`\`\`apex
+global class AccountBatch implements Database.Batchable<SObject>, Database.Stateful {
+    global Database.QueryLocator start(Database.BatchableContext bc) {
+        return Database.getQueryLocator([SELECT Id FROM Account WITH USER_MODE]);
+    }
+    global void execute(Database.BatchableContext bc, List<Account> scope) { }
+    global void finish(Database.BatchableContext bc) { }
+}
+\`\`\`
+
+**Queueable**
+\`\`\`apex
+public with sharing class AccountQueueable implements Queueable, Database.AllowsCallouts {
+    public void execute(QueueableContext ctx) { }
+}
+\`\`\`
+
+**Invocable Action (for Flow / Agentforce)**
+\`\`\`apex
+public with sharing class GetAccountSummary {
+    @InvocableMethod(label='Get Account Summary' description='Returns account summary for Agentforce')
+    public static List<Response> execute(List<Request> requests) { }
+    public class Request { @InvocableVariable(required=true) public Id accountId; }
+    public class Response { @InvocableVariable public String summary; }
+}
+\`\`\`
 
 ## Checklist
 
-- [ ] All SOQL queries are outside loops
-- [ ] All DML operations are outside loops
-- [ ] Class uses \`with sharing\` (or has documented reason not to)
-- [ ] No hardcoded IDs
-- [ ] Tests cover positive, negative, bulk, and security scenarios
-- [ ] Test coverage ≥ 75% (target 85%+)
-- [ ] No PII or secrets in debug logs or assertions
-- [ ] Apex follows naming conventions (PascalCase for classes, camelCase for methods)
+- [ ] No SOQL or DML inside any loop
+- [ ] Every class has an explicit sharing keyword
+- [ ] All SOQL uses \`WITH USER_MODE\` (or \`WITH SYSTEM_MODE\` with documented reason)
+- [ ] No hardcoded IDs, endpoints, or credentials
+- [ ] All callouts use Named Credentials
+- [ ] Exception handling logs context and does not swallow silently
+- [ ] Trigger delegates immediately to a handler/service class (no logic in trigger body)
+- [ ] Tests cover: positive path, bulk (200+ records), null/empty input, negative/error path
+- [ ] Test coverage ≥ 85% on new code
+- [ ] No \`System.debug\` statements that could log PII (email, SSN, token, password)
+- [ ] Code reviewed against OWASP Apex Security Cheatsheet
 
 ## Done Criteria
 
-Code is ready when all checklist items pass and tests execute without errors.
+All checklist items pass, tests are green, and a peer has reviewed the diff.
 `,
-    '.cursor/skills/salesforce-lwc/SKILL.md': `# Salesforce LWC Skill
+    '.cursor/skills/salesforce-lwc/SKILL.md': `---
+name: salesforce-lwc
+description: "Lightning Web Component development: wire adapters, async state handling, Locker Security, Jest tests, and CRUD/FLS enforcement."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
 
-> AI-Kit Salesforce skill template — compatible with Cursor skills workflow.
-> This is a local project-level skill, not an official Jag or AFV Library file.
+# Salesforce LWC Skill
+
+> SF AI Toolkit — project-level skill. AFV Library reference: forcedotcom/afv-library (building-ui-bundle-frontend, using-ui-bundle-salesforce-data).
 
 ## When to Use
 
-Load this skill when:
-- Building new Lightning Web Components
-- Reviewing existing LWC for quality or security issues
-- Integrating components with Apex or external services
+- Building or reviewing Lightning Web Components
+- Integrating LWC with Apex, wire adapters, or Lightning Message Service
+- Migrating Aura components to LWC
 - Writing LWC Jest tests
 
-## Rules
+## Architecture Rules
 
-1. **Single responsibility.** One component does one thing well.
-2. **Always show loading, error, and empty states.**
-3. **Use Custom Labels** for user-visible strings where appropriate.
-4. **Use wire adapters** for reactive Salesforce data.
-5. **Keep Apex controllers cacheable** where appropriate.
-6. **Validate all inputs** in Apex methods — never trust client-side data.
-7. **Enforce CRUD/FLS** in Apex controllers.
-8. **Use Lightning Message Service** for cross-component communication.
+1. **Single responsibility.** One component does one thing. Decompose into container + presentational components.
+2. **Always handle all three async states:** loading, error, and empty — never assume data is always present.
+3. **Wire adapters for reactive data.** Use \`@wire\` for Salesforce data; imperative Apex only for mutations or conditional fetches.
+4. **Custom Labels for all user-facing strings.** Never hardcode display text.
+5. **Lightning Message Service for cross-component communication.** Never use window events or global state.
+6. **No \`innerHTML\` assignment.** Use \`lwc:ref\`, template directives, or \`lightning-formatted-*\` components instead — innerHTML bypasses Locker Service.
+7. **Apex controllers must enforce CRUD/FLS.** Never trust data sent from the client.
+8. **No hardcoded Salesforce URLs.** Use \`NavigationMixin\` or \`@salesforce/community/basePath\`.
+
+## Component Structure
+
+\`\`\`
+myComponent/
+├── myComponent.html       # Template — no logic, only directives
+├── myComponent.js         # Controller — wire + imperative calls, event handling
+├── myComponent.css        # Scoped styles only
+├── myComponent.js-meta.xml # Targets, isExposed
+└── __tests__/
+    └── myComponent.test.js
+\`\`\`
+
+## Wire Pattern
+
+\`\`\`js
+@wire(getAccountList)
+wiredAccounts({ error, data }) {
+    if (data) { this.accounts = data; this.error = undefined; }
+    else if (error) { this.error = error; this.accounts = undefined; }
+}
+\`\`\`
+Always destructure both \`data\` and \`error\`. Never access \`this.wiredAccounts.data\` directly in the template.
 
 ## Checklist
 
-- [ ] Component handles loading state
-- [ ] Component handles error state
-- [ ] Component handles empty state
-- [ ] User-facing strings use Custom Labels (not hardcoded)
-- [ ] Apex methods enforce CRUD/FLS
-- [ ] No sensitive data in component attributes or events
-- [ ] ESLint passes: \`npm run lint:lwc\`
-- [ ] Jest tests cover main user interactions and error scenarios
+- [ ] Component handles loading, error, and empty states in the template
+- [ ] All user-facing strings use Custom Labels (\`@salesforce/label/...\`)
+- [ ] No \`innerHTML\` assignment
+- [ ] No hardcoded Salesforce URLs
+- [ ] Wire adapters handle both data and error branches
+- [ ] Apex controllers enforce CRUD/FLS (\`WITH USER_MODE\`)
+- [ ] Component exposes only necessary \`@api\` properties
+- [ ] ESLint passes with no warnings: \`npm run lint:lwc\`
+- [ ] Jest tests cover: render, user interaction, wire data, wire error, empty state
+- [ ] No sensitive data in \`@api\` properties, events, or console output
 
 ## Done Criteria
 
-Component renders correctly in all states, passes ESLint, and tests are green.
+Component renders correctly in all states, ESLint is clean, and Jest tests are green.
 `,
-    '.cursor/skills/salesforce-flow/SKILL.md': `# Salesforce Flow Skill
+    '.cursor/skills/salesforce-flow/SKILL.md': `---
+name: salesforce-flow
+description: "Salesforce Flow creation and review: type selection, Before/After Save rules, bulk handling, and fault path coverage."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
 
-> AI-Kit Salesforce skill template — compatible with Cursor skills workflow.
-> This is a local project-level skill, not an official Jag or AFV Library file.
+# Salesforce Flow Skill
+
+> SF AI Toolkit — project-level skill. AFV Library reference: forcedotcom/afv-library (generating-flow, generating-validation-rule).
 
 ## When to Use
 
-Load this skill when:
-- Reviewing Flow metadata files (\`.flow-meta.xml\`)
-- Documenting Flow logic for review or handover
-- Analysing Flow performance or bulk handling
-- Identifying Flow risks before deployment
+- Creating or reviewing Flow metadata (\`.flow-meta.xml\`)
+- Migrating Process Builder or Workflow Rules to Flow
+- Documenting Flow logic for handover or review
+- Diagnosing Flow performance or governor limit issues
 
-## Rules
+## Flow Type Selection
 
-1. **Check for loops** — Flow loops that call DML or SOQL can cause limits errors.
-2. **Prefer Record-Triggered Flows** over Process Builder (deprecated).
-3. **Use \`Before Save\` flows** for field updates when no DML on related records is needed.
-4. **Document complex decisions** with Flow descriptions.
-5. **Test with bulk records** — check governor limit impacts.
-6. **Avoid hardcoded IDs** in Flow conditions and assignments.
+| Trigger | Correct Flow Type | Notes |
+|---------|-----------------|-------|
+| Record save, field updates only | Record-Triggered — **Before Save** | Fastest; no DML consumed |
+| Record save + related record DML | Record-Triggered — **After Save** | Uses DML statement |
+| UI interaction | Screen Flow | Use in Lightning pages, Quick Actions |
+| Called from Apex / another Flow | Autolaunched — No Trigger | Reusable logic unit |
+| Time-based / scheduled | Scheduled Flow | Avoid for high-volume |
+
+**Never use Process Builder or Workflow Rules for new development** — both are deprecated.
+
+## Hard Rules
+
+1. **No SOQL or DML inside a Flow loop.** Use collection variables; perform Get/Update Records outside loops.
+2. **Before Save over After Save** when only updating fields on the triggering record — saves a DML statement.
+3. **Bulkify collection operations.** Flow processes records in batches of 200 in record-triggered context.
+4. **No hardcoded record IDs** in conditions, assignments, or variables.
+5. **Describe every Flow element.** Set the Description field on complex Decision, Assignment, and Loop elements.
+6. **Handle null values.** Every Get Records element should have a fault path or null check before use.
+7. **One Flow per object per trigger timing** where possible — multiple flows on the same event compound governor usage.
 
 ## Checklist
 
-- [ ] Flow does not call DML inside a loop without collection handling
-- [ ] Flow uses Before Save where appropriate
-- [ ] No hardcoded record IDs in conditions
-- [ ] Flow description explains purpose
-- [ ] Flow has been tested with a representative data volume
-- [ ] Flow handles null/empty conditions gracefully
+- [ ] Correct flow type selected for the use case
+- [ ] No SOQL or DML inside loops
+- [ ] Before Save used where no related-record DML is needed
+- [ ] No hardcoded record IDs in conditions or variables
+- [ ] All Get Records elements handle the null/no-records case
+- [ ] Fault connectors wired on every DML and callout element
+- [ ] Flow API name follows convention: \`Object_Action_Description\` (e.g., \`Account_AfterSave_SyncToERP\`)
+- [ ] Flow description explains purpose and owner team
+- [ ] Tested in scratch org or sandbox with bulk data (200+ records)
+- [ ] Flow reviewed by architect if it touches >2 objects
 
 ## Done Criteria
 
-Flow is documented, reviewed for governor limits, and tested in scratch org.
+Flow passes review, handles edge cases, and is tested with representative volume.
 `,
-    '.cursor/skills/salesforce-security-review/SKILL.md': `# Salesforce Security Review Skill
+    '.cursor/skills/salesforce-security-review/SKILL.md': `---
+name: salesforce-security-review
+description: "Salesforce security gate: SOQL injection, CRUD/FLS, sharing model, guest user exposure, secrets, and XSS checks."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
 
-> AI-Kit Salesforce skill template — compatible with Cursor skills workflow.
-> This is a local project-level skill, not an official Jag or AFV Library file.
+# Salesforce Security Review Skill
+
+> SF AI Toolkit — project-level skill. Use before every production deployment and AppExchange security review.
 
 ## When to Use
 
-Load this skill when:
-- Reviewing any Apex, LWC, Flow, or configuration change for security
-- Preparing a deployment for production
-- Running a pre-release security checklist
-- Investigating a security concern or vulnerability
+- Pre-deployment security gate for any Apex, LWC, Flow, or metadata change
+- AppExchange Security Review preparation
+- Post-incident root cause analysis
+- Quarterly security posture review
 
-## Rules
+## OWASP Salesforce Top Issues
 
-1. **SOQL Injection.** Ensure dynamic SOQL uses \`String.escapeSingleQuotes()\` or bind variables.
-2. **CRUD/FLS.** Check create, read, update, delete and field-level security on all data access.
-3. **Sharing.** Verify \`with sharing\` is used on all classes that access user data.
-4. **Guest User.** Review all Apex/APIs accessible without authentication.
-5. **Secrets.** No tokens, passwords, or credentials in code, metadata, or logs.
-6. **Named Credentials.** All external callouts must use Named Credentials.
-7. **Production.** No write operations to production without explicit confirmation.
+### 1. SOQL Injection
+Dynamic SOQL built from user input without sanitisation allows attackers to exfiltrate data.
+\`\`\`apex
+// BAD
+String q = 'SELECT Id FROM Account WHERE Name = \'' + userInput + '\'';
+// GOOD — bind variable (preferred)
+String q = [SELECT Id FROM Account WHERE Name = :userInput];
+// GOOD — escape if dynamic SOQL is truly required
+String safe = String.escapeSingleQuotes(userInput);
+\`\`\`
 
-## Checklist
+### 2. Missing CRUD / FLS
+Every query and DML must respect object and field permissions.
+\`\`\`apex
+// GOOD — enforces both CRUD and FLS automatically
+List<Account> accs = [SELECT Id, Name FROM Account WITH USER_MODE];
+\`\`\`
 
-- [ ] No dynamic SOQL without \`escapeSingleQuotes\` or bind variables
-- [ ] CRUD/FLS enforced on all DML and queries
-- [ ] All classes use \`with sharing\` (or have documented exceptions)
-- [ ] Guest user access reviewed and restricted appropriately
-- [ ] No secrets, tokens, or credentials in code or metadata
+### 3. Sharing Violations
+\`\`\`apex
+// Every class must declare sharing explicitly
+public with sharing class AccountService { }   // standard
+public without sharing class AccountIntegration { } // document why
+public inherited sharing class AccountUtil { }  // explicit inheritance
+\`\`\`
+
+### 4. Hardcoded Secrets
+Scan for: passwords, tokens, client secrets, API keys, session IDs, private keys.
+Store secrets in: **Named Credentials**, **Protected Custom Metadata**, or **org secrets vault**.
+
+### 5. Guest User Over-Exposure
+Guest users run without authentication. Review:
+- Apex classes with \`global\` or \`@AuraEnabled\` that are accessible without login
+- Experience Cloud pages accessible to guest
+- Sharing rules that expose records to guest
+
+### 6. Cross-Site Scripting (XSS) in LWC
+- No \`innerHTML\` assignment
+- No \`eval()\` or \`Function()\`
+- Use \`lightning-formatted-*\` components for user-provided content
+
+### 7. Insecure Direct Object Reference
+Every record access must go through the sharing model. Never query by Id received from the client without verifying the running user has access.
+
+## Checklist — Apex
+
+- [ ] No dynamic SOQL without bind variables or \`escapeSingleQuotes\`
+- [ ] All SOQL uses \`WITH USER_MODE\` (exceptions documented)
+- [ ] Every class has explicit \`with sharing\` / \`without sharing\` / \`inherited sharing\`
+- [ ] No hardcoded credentials, tokens, or secrets
 - [ ] All callouts use Named Credentials
-- [ ] Permission Sets reviewed — no over-privileged assignments
-- [ ] No hardcoded org IDs, record IDs, or user IDs
+- [ ] No sensitive data in \`System.debug\` statements
+- [ ] \`@AuraEnabled\` methods do not expose data beyond the user's sharing
+
+## Checklist — LWC
+
+- [ ] No \`innerHTML\` assignment
+- [ ] No hardcoded Salesforce URLs
+- [ ] No sensitive data in \`@api\` properties or dispatched events
+- [ ] CSP compliance — no inline scripts
+
+## Checklist — Profiles & Permission Sets
+
+- [ ] No "Modify All Data" or "View All Data" granted to non-admin profiles
+- [ ] Field-level security tightened on sensitive fields (SSN, DOB, salary, etc.)
+- [ ] Guest user profile reviewed — minimum necessary access only
+- [ ] Named Credentials not accessible to guest or community users
+
+## Checklist — Deployment
+
+- [ ] No test data containing real PII
+- [ ] No \`@IsTest(SeeAllData=true)\` in new tests
+- [ ] Deployment does not remove existing sharing rules without review
 
 ## Done Criteria
 
-Security checklist passes with no critical or high findings.
+Zero critical findings. High findings have documented mitigations. Review signed off by security owner.
 `,
-    '.cursor/skills/salesforce-agentforce/SKILL.md': `# Salesforce Agentforce Skill
+    '.cursor/skills/salesforce-agentforce/SKILL.md': `---
+name: salesforce-agentforce
+description: "Agentforce agent and invocable action development: Atlas routing, topic scoping, prompt guardrails, and Testing Center specs."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
 
-> AI-Kit Salesforce skill template — compatible with Cursor skills workflow.
-> This is a local project-level skill, not an official Jag or AFV Library file.
-> See also: Salesforce AFV Library — Salesforce's curated agent skills for Agentforce Vibes.
+# Salesforce Agentforce Skill
+
+> SF AI Toolkit — project-level skill. AFV Library reference: forcedotcom/afv-library (developing-agentforce, testing-agentforce, observing-agentforce, generating-apex for invocable actions).
+> Install full AFV Library: \`npx skills add forcedotcom/afv-library\`
 
 ## When to Use
 
-Load this skill when:
-- Building or reviewing Agentforce agents and topics
-- Creating invocable actions for Agentforce
-- Reviewing Prompt Templates
-- Working with Einstein AI features
-- Integrating Agentforce with external systems
+- Building Agentforce agents, topics, and actions
+- Creating or reviewing \`@InvocableMethod\` Apex actions
+- Writing or reviewing Prompt Templates
+- Testing agent behaviour in the Testing Center
+- Diagnosing agent errors via session traces
 
-## Rules
+## Agentforce Architecture
 
-1. **Use invocable actions** to expose Apex functionality to Agentforce.
-2. **Keep agent topics focused** — one topic, one domain.
-3. **Use Prompt Templates** for consistent AI instructions.
-4. **Test agent responses** in sandbox before production.
-5. **Review data access** — agents should not access data beyond their scope.
-6. **Document agent capabilities** clearly for end users.
+\`\`\`
+Agent
+├── Topics (domain boundaries — one topic per domain)
+│   ├── Agent Actions (invocable Apex, Flow, or Prompt)
+│   └── Instructions (natural language rules)
+└── Prompt Template (system prompt, grounding context)
+\`\`\`
 
-## Checklist
+**Atlas Reasoning Engine** selects topics and actions based on user intent. Keep topic names and descriptions precise — they are the routing signal.
 
-- [ ] Invocable actions are bulkified and handle errors gracefully
-- [ ] Agent topics are scoped and well-described
-- [ ] Prompt Templates use appropriate guardrails
-- [ ] Agent tested in sandbox/scratch org
-- [ ] Data access reviewed (CRUD/FLS enforced in invocable Apex)
-- [ ] No sensitive data exposed in agent responses
-- [ ] AFV Library skills reviewed for reusable patterns
+## Invocable Action Rules
+
+\`\`\`apex
+public with sharing class GetCaseHistory {
+    @InvocableMethod(
+        label='Get Case History'
+        description='Returns the last 10 cases for an account. Use when the user asks about case history.'
+        category='Case Management'
+    )
+    public static List<Response> execute(List<Request> requests) {
+        // Bulkify: process all requests in one SOQL
+        Set<Id> accountIds = new Set<Id>();
+        for (Request r : requests) accountIds.add(r.accountId);
+        // query with USER_MODE to enforce CRUD/FLS
+        List<Case> cases = [SELECT Id, Subject, Status FROM Case
+                            WHERE AccountId IN :accountIds
+                            WITH USER_MODE ORDER BY CreatedDate DESC LIMIT 10];
+        // map results back to responses
+        List<Response> responses = new List<Response>();
+        for (Request r : requests) {
+            Response res = new Response();
+            // populate res from cases map
+            responses.add(res);
+        }
+        return responses;
+    }
+    public class Request  { @InvocableVariable(required=true) public Id accountId; }
+    public class Response { @InvocableVariable public List<Case> cases; }
+}
+\`\`\`
+
+## Prompt Template Best Practices
+
+- **Ground every prompt** with object field context (\`{!Record.FieldName}\`) — do not rely on LLM knowledge of your data model
+- **Set explicit guardrails** in system instructions: "Only discuss topics related to this account. Do not reveal internal notes."
+- **Use Merge Fields** for record context, not static text
+- **Test with adversarial inputs** — attempt prompt injection to verify guardrails
+
+## Testing Checklist (AFV Library: testing-agentforce)
+
+Use the Agentforce Testing Center for batch regression tests.
+
+- [ ] Agent topics are scoped — one domain per topic
+- [ ] Each action has a clear \`description\` that guides Atlas routing
+- [ ] Invocable actions are bulkified (process all items in \`List<Request>\`)
+- [ ] Invocable actions use \`WITH USER_MODE\` — no data beyond user's access
+- [ ] Prompt Templates have explicit guardrails against out-of-scope responses
+- [ ] Agent tested in sandbox with representative data
+- [ ] Agentforce Testing Center YAML specs committed to repo
+- [ ] Sensitive data (PII, credentials) never appears in agent responses
+- [ ] Session traces reviewed via Observation skill before production launch
+
+## Observability (AFV Library: observing-agentforce)
+
+\`\`\`soql
+SELECT Id, AgentType, Status, ErrorMessage, CreatedDate
+FROM AgentWork
+WHERE CreatedDate = LAST_N_DAYS:7
+ORDER BY CreatedDate DESC
+LIMIT 50
+\`\`\`
+Use session traces to diagnose wrong topic selection, failed actions, or unexpected responses.
 
 ## Done Criteria
 
-Agentforce agent is tested, documented, and approved for deployment.
-
-## AFV Library Reference
-
-Salesforce AFV Library provides curated Agentforce skill patterns:
-- See: \`docs/afv-library.md\`
-- Install guide: \`npx skills add forcedotcom/afv-library\` (review before installing)
+Agent topics scoped, actions bulkified, Testing Center specs committed, guardrails verified, and session traces reviewed in staging.
 `,
-    '.cursor/skills/salesforce-data-cloud/SKILL.md': `# Salesforce Data Cloud Skill
+    '.cursor/skills/salesforce-data-cloud/SKILL.md': `---
+name: salesforce-data-cloud
+description: "Salesforce Data Cloud: ingestion design, identity resolution, segment criteria, calculated insights, and privacy compliance."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
 
-> AI-Kit Salesforce skill template — compatible with Cursor skills workflow.
-> This is a local project-level skill, not an official Jag or AFV Library file.
+# Salesforce Data Cloud Skill
+
+> SF AI Toolkit — project-level skill. Data Cloud (formerly CDP) — unified customer data platform.
 
 ## When to Use
 
-Load this skill when:
-- Working with Data Cloud data streams, data models, or segments
-- Building integrations that write to or read from Data Cloud
-- Reviewing Data Cloud query performance
-- Setting up calculated insights or activation targets
+- Designing or reviewing Data Cloud data streams and data models
+- Building ingestion pipelines (Connector, API, or Salesforce CRM connector)
+- Creating segments, calculated insights, or activation targets
+- Reviewing Data Cloud performance or compliance posture
 
-## Rules
+## Data Model Layers
 
-1. **Understand data residency** — Data Cloud data may have compliance implications.
-2. **Use Data Cloud APIs** for ingestion where batch size allows.
-3. **Review segment refresh schedules** before changing segment criteria.
-4. **Test calculated insights** with representative data samples.
-5. **Activation targets must be reviewed** before connecting to external systems.
-6. **Do not expose PII** from Data Cloud in debug logs, test assertions, or AI prompts.
+\`\`\`
+Raw Data Layer        — Ingested as-is from source systems
+Harmonised Layer      — Mapped to standard Data Cloud objects (Individual, Contact Point, etc.)
+Insight Layer         — Calculated Insights, Segments derived from harmonised data
+Activation Layer      — Segment activations to Marketing Cloud, Ad platforms, CRM
+\`\`\`
+
+Always map to the **Individual** object for identity resolution. Use **Contact Point Email / Phone** objects for identity graph matching.
+
+## Ingestion Rules
+
+1. **Use the Salesforce CRM Connector** for standard CRM objects — it handles incremental sync automatically.
+2. **Use Ingestion API** for streaming event data or non-CRM sources.
+3. **Schema changes** to a data stream require a full re-ingestion — plan field additions carefully.
+4. **Primary Key must be stable and unique** across all source records — a changing PK breaks identity resolution.
+5. **DateTime fields must be ISO 8601** format for correct ingestion.
+
+## Segment & Calculated Insight Rules
+
+1. **Test segment criteria** in a sandbox Data Cloud org before production — segment refresh can be slow to debug.
+2. **Calculated Insights use ANSI SQL** — test queries in Data Cloud Query Editor first.
+3. **Segment refresh schedule** affects activation latency — understand the SLA before committing to near-real-time activation.
+4. **Avoid cross-DMO joins** on very large datasets without confirmed indexing.
+
+## Compliance & Privacy
+
+1. **Data residency** — confirm which region Data Cloud is provisioned in; applies to GDPR, PDPA, CCPA obligations.
+2. **Consent fields** — map consent and preference data; segments must respect opt-out flags.
+3. **Right to erasure** — test the individual deletion / suppression workflow before go-live.
+4. **No PII in debug logs, Apex test assertions, or AI prompts** — use anonymised or synthetic test data.
+5. **Activation target review** — every new activation must be reviewed for privacy compliance before enabling.
 
 ## Checklist
 
-- [ ] Data stream schema reviewed and approved
-- [ ] Data model mapped correctly (Individual, Engagement, etc.)
-- [ ] Segment criteria validated in sandbox
-- [ ] Calculated insights tested with sample data
+- [ ] Data stream primary key is stable and unique
+- [ ] All records mapped to Individual object for identity resolution
+- [ ] Calculated Insights tested in Query Editor before deployment
+- [ ] Segment criteria validated in sandbox org
+- [ ] Consent fields mapped and segment honours opt-outs
+- [ ] Data residency region confirmed and documented
+- [ ] Individual deletion workflow tested end-to-end
 - [ ] Activation target reviewed for privacy compliance
-- [ ] No PII in debug logs or test data
-- [ ] Data Cloud / Salesforce org connection permissions reviewed
+- [ ] No PII in test data, debug logs, or prompts
 
 ## Done Criteria
 
-Data Cloud changes tested, compliance reviewed, and approved for production.
+Data model reviewed, compliance sign-off obtained, segment and activation tested in staging.
+`,
+    '.cursor/skills/salesforce-apex-tests/SKILL.md': `---
+name: salesforce-apex-tests
+description: "Apex test class authoring: Arrange/Act/Assert, TestDataFactory, 251+ bulk coverage, callout mocks, and System.runAs patterns."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# Salesforce Apex Test Writing Skill
+
+> SF AI Toolkit — project-level skill. AFV Library reference: forcedotcom/afv-library (generating-apex-test).
+
+## When to Use
+
+- Writing new Apex test classes from scratch
+- Increasing coverage on existing untested code
+- Reviewing test quality (not just coverage percentage)
+- Setting up \`@TestSetup\` for a test suite
+
+## Test Anatomy
+
+\`\`\`apex
+@IsTest
+private class AccountServiceTest {
+
+    @TestSetup
+    static void makeData() {
+        // Create all test data once — shared across all test methods
+        Account acc = new Account(Name = 'Test Account');
+        insert acc;
+    }
+
+    @IsTest
+    static void getAccount_returnsAccount_whenValidId() {
+        // Arrange
+        Account acc = [SELECT Id FROM Account LIMIT 1];
+        // Act
+        Test.startTest();
+        Account result = AccountService.getAccount(acc.Id);
+        Test.stopTest();
+        // Assert
+        Assert.areEqual(acc.Id, result.Id, 'Should return correct account');
+    }
+
+    @IsTest
+    static void getAccount_throwsException_whenIdIsNull() {
+        // Act & Assert
+        try {
+            Test.startTest();
+            AccountService.getAccount(null);
+            Test.stopTest();
+            Assert.fail('Expected exception was not thrown');
+        } catch (IllegalArgumentException e) {
+            Assert.isTrue(e.getMessage().contains('Id'), 'Error should mention Id');
+        }
+    }
+
+    @IsTest
+    static void getAccount_handlesBulk_with200Records() {
+        // Arrange — insert 200 records in TestSetup, verify bulk path
+        List<Account> accounts = [SELECT Id FROM Account];
+        // Act
+        Test.startTest();
+        List<Account> results = AccountService.getAccounts(new Map<Id,Account>(accounts).keySet());
+        Test.stopTest();
+        // Assert
+        Assert.areEqual(200, results.size(), 'Should process all 200 records');
+    }
+}
+\`\`\`
+
+## Rules
+
+1. **Arrange / Act / Assert structure** in every test method. No implicit assertions.
+2. **\`@TestSetup\` for shared data.** Do not insert the same records in every \`@IsTest\` method.
+3. **\`Test.startTest() / stopTest()\`** around the code under test — resets governor limits and runs async jobs.
+4. **Use \`Assert\` class** (not \`System.assert\`) — provides better failure messages.
+5. **Test the negative path.** Every public method that can throw must have a test that triggers the exception.
+6. **Test bulk with 200 records.** The Apex platform processes triggers in batches of 200.
+7. **No \`@IsTest(SeeAllData=true)\`.** Create all test data in \`@TestSetup\` or the test method itself.
+8. **No hardcoded IDs** in test data.
+9. **Mock callouts** with \`HttpCalloutMock\` — tests must not make real HTTP requests.
+10. **Test as a specific user** for permission/sharing scenarios: \`System.runAs(testUser) { ... }\`
+
+## Coverage Targets
+
+| Layer | Target |
+|-------|--------|
+| Service / Domain | 100% |
+| Selector | 90%+ |
+| Controller (thin) | 85%+ |
+| Utility | 85%+ |
+| Minimum to deploy | 75% |
+
+## Checklist
+
+- [ ] Every test class has \`@TestSetup\` if more than one test method exists
+- [ ] Tests cover: happy path, null/empty input, bulk (200+), error/exception path
+- [ ] \`Test.startTest() / stopTest()\` used in every test method
+- [ ] \`Assert\` class used (not \`System.assert\`)
+- [ ] No \`@IsTest(SeeAllData=true)\`
+- [ ] No hardcoded IDs in test data
+- [ ] Callout tests use \`HttpCalloutMock\`
+- [ ] Sharing/permission scenarios tested with \`System.runAs\`
+- [ ] All assertions have a descriptive failure message
+
+## Done Criteria
+
+Test suite achieves coverage targets, all assertions pass, and bulk paths are verified.
+`,
+    '.cursor/skills/salesforce-deployment/SKILL.md': `---
+name: salesforce-deployment
+description: "Salesforce deployment safety: pre-deploy gates, metadata ordering, destructive change risk matrix, and rollback playbook."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# Salesforce Deployment Safety Skill
+
+> SF AI Toolkit — project-level skill. Use before every sandbox-to-sandbox or sandbox-to-production deployment.
+
+## When to Use
+
+- Planning a deployment package
+- Running pre-deployment risk assessment
+- Reviewing a destructiveChanges manifest
+- Deploying to production
+
+## Deployment Checklist — Before You Run
+
+### Code Quality Gates
+- [ ] All Apex tests pass locally: \`sf apex run test --synchronous\`
+- [ ] Overall org test coverage ≥ 75% (confirm, do not assume)
+- [ ] No compilation errors in any class being deployed
+- [ ] Security review completed (use the Security Review skill)
+- [ ] No \`@IsTest(SeeAllData=true)\` in any test class
+
+### Metadata Safety
+- [ ] No Profiles in the deployment package — use Permission Sets instead
+- [ ] destructiveChanges.xml reviewed line by line — deletions are irreversible
+- [ ] No custom field deletion without confirming zero usage (Reports, Flows, Apex)
+- [ ] Page layouts do not remove required fields from edit views
+- [ ] Sharing settings changes reviewed — can expose data broadly if misconfigured
+
+### Production-Specific Gates
+- [ ] Deployment window confirmed with stakeholders (avoid peak business hours)
+- [ ] Rollback plan documented — what will you do if deployment fails mid-way?
+- [ ] All dependent metadata deployed in the correct order (Custom Object before fields, Permission Set before assignment)
+- [ ] Quick Deploy artefact tested in full-copy sandbox first (if using Quick Deploy)
+- [ ] Change Management record created and approved (if org has a change process)
+
+## Deployment Order
+
+Always deploy in this order to avoid dependency errors:
+
+1. Custom Objects
+2. Custom Fields
+3. Record Types
+4. Validation Rules
+5. Apex Classes (non-test)
+6. Apex Triggers
+7. Flows
+8. Lightning Web Components
+9. Lightning Pages (FlexiPages)
+10. Permission Sets
+11. Profiles (avoid — use Permission Sets)
+12. Apex Test Classes
+
+## Destructive Changes Risk Matrix
+
+| Metadata Type | Risk | Action Required |
+|---------------|------|----------------|
+| Custom Field deletion | **HIGH** — data loss | Confirm zero usage in Reports, Flow, Apex, integrations |
+| Custom Object deletion | **CRITICAL** — data loss | Full impact analysis; archive data first |
+| Permission Set removal | **HIGH** — access loss | Confirm no users rely on it |
+| Flow deactivation | **MEDIUM** | Check active processes and scheduled interviews |
+| Apex Class removal | **MEDIUM** | Confirm no callers via grep and dependency API |
+
+## Rollback Playbook
+
+If a production deployment fails:
+1. Note exact failure message and metadata type
+2. Do NOT re-run immediately — diagnose first
+3. If partial deployment: deploy a fix forward (not a rollback) — Salesforce does not support true rollback
+4. If data was changed by a Flow/Trigger that deployed partially: use Data Loader to restore from backup
+5. Communicate status to stakeholders within 15 minutes of failure
+
+## Done Criteria
+
+All gates passed, deployment executed in maintenance window, and post-deployment smoke tests confirmed.
+`,
+    '.cursor/skills/salesforce-pr-review/SKILL.md': `---
+name: salesforce-pr-review
+description: "Pull request review for Salesforce projects: correctness, security, performance, and maintainability across Apex, LWC, Flow, and metadata."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# Salesforce PR Review Skill
+
+> SF AI Toolkit — project-level skill. Use on every pull request before merge to any shared branch.
+
+## When to Use
+
+- Reviewing a pull request for Apex, LWC, Flow, or metadata changes
+- Acting as PR author self-review before requesting review
+- Acting as reviewer providing structured feedback
+
+## PR Review Framework
+
+A good PR review covers four dimensions:
+
+| Dimension | Questions to Answer |
+|-----------|-------------------|
+| **Correctness** | Does the code do what the ticket says? Are edge cases handled? |
+| **Security** | Does it pass the Security Review skill checklist? |
+| **Performance** | Are there governor limit risks? N+1 SOQL patterns? |
+| **Maintainability** | Is it readable? Is it consistent with the codebase? Does it need a test? |
+
+## Apex Review Checklist
+
+- [ ] No SOQL or DML inside loops
+- [ ] All classes have explicit sharing keyword
+- [ ] All SOQL uses \`WITH USER_MODE\` (or has a documented reason not to)
+- [ ] No hardcoded IDs, credentials, or endpoints
+- [ ] All callouts use Named Credentials
+- [ ] Exception handling is meaningful — not swallowed silently
+- [ ] New public methods have corresponding test methods
+- [ ] Test methods cover bulk path (200+ records)
+- [ ] Trigger delegates to a handler class immediately
+
+## LWC Review Checklist
+
+- [ ] Component handles loading, error, and empty states
+- [ ] No \`innerHTML\` assignment
+- [ ] No hardcoded Salesforce URLs
+- [ ] Wire adapters handle both \`data\` and \`error\` branches
+- [ ] Custom Labels used for user-visible strings
+- [ ] ESLint passes
+
+## Flow Review Checklist
+
+- [ ] Correct flow type for the use case (Before Save vs After Save)
+- [ ] No SOQL or DML inside loops
+- [ ] Fault paths wired on all DML and callout elements
+- [ ] No hardcoded record IDs
+
+## Metadata Review Checklist
+
+- [ ] No Profile changes — Permission Sets only
+- [ ] No custom field deletions without impact analysis
+- [ ] Sharing rules changes reviewed
+
+## Feedback Format
+
+Structure review comments as:
+
+\`\`\`
+[BLOCKER] — Must fix before merge. Explain why.
+[SUGGESTION] — Recommended improvement. Not blocking.
+[QUESTION] — Clarification needed to complete the review.
+[PRAISE] — Acknowledge good patterns worth repeating.
+\`\`\`
+
+Blockers: security issues, missing tests, SOQL/DML in loops, hardcoded credentials.
+Suggestions: naming improvements, refactor opportunities, additional test cases.
+
+## PR Description Quality Check
+
+A good PR description answers:
+- **What** changed (1–2 sentence summary)
+- **Why** it changed (ticket link or business reason)
+- **How** to test it (steps, test class name, or sandbox URL)
+- **Risk** — any areas the reviewer should pay extra attention to
+
+## Done Criteria
+
+Zero blockers. All suggestions acknowledged (addressed or explicitly deferred with reason). PR description is complete.
+`,
+    '.cursor/skills/salesforce-commit-message/SKILL.md': `---
+name: salesforce-commit-message
+description: "Conventional Commits for Salesforce DX: type taxonomy, scope conventions, real examples, and anti-patterns to reject in PR review."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# Salesforce Commit Message Skill
+
+> SF AI Toolkit — project-level skill. Consistent commit history makes \`git log\`, \`git bisect\`, and release notes generation reliable.
+
+## When to Use
+
+- Writing a commit message for any Salesforce DX change
+- Reviewing commit messages in a PR
+- Generating release notes from git history
+
+## Commit Message Format
+
+Follow the **Conventional Commits** specification, extended for Salesforce:
+
+\`\`\`
+<type>(<scope>): <short summary>
+
+[optional body — explain WHY, not WHAT]
+
+[optional footer — ticket reference, breaking change notice]
+\`\`\`
+
+**Rules:**
+- Summary line ≤ 72 characters
+- Use imperative mood: "add", "fix", "remove" — not "added", "fixed", "removed"
+- Body explains motivation and context, not line-by-line description of the diff
+- Footer contains ticket ID and any breaking change notice
+
+## Types
+
+| Type | Use For |
+|------|---------|
+| \`feat\` | New feature, new Apex class, new LWC, new Flow |
+| \`fix\` | Bug fix — includes governor limit fixes, sharing fixes |
+| \`sec\` | Security fix — SOQL injection, CRUD/FLS, credential exposure |
+| \`test\` | Adding or updating Apex test classes only |
+| \`refactor\` | Code restructuring with no behaviour change |
+| \`perf\` | Performance improvement — SOQL optimisation, bulkification |
+| \`meta\` | Metadata only — Permission Sets, Profiles, Custom Fields, Custom Objects |
+| \`flow\` | Flow or Process Builder changes |
+| \`deploy\` | Deployment config, pipeline, scratch org definition changes |
+| \`docs\` | Documentation only — CLAUDE.md, README, inline comments |
+| \`chore\` | Build scripts, .gitignore, tooling — no production code |
+
+## Scope (optional but recommended)
+
+Use the primary SObject or component name:
+- \`feat(Account)\`, \`fix(CaseService)\`, \`meta(OpportunityStage)\`, \`flow(LeadAssignment)\`
+
+## Examples
+
+\`\`\`
+feat(AccountService): add bulk account merge with duplicate detection
+
+Merges duplicate accounts identified by DuplicateRule. Uses Database.merge()
+in batches of 10 to stay within DML row limits. Fires a platform event on
+completion for downstream notification.
+
+Closes: SF-1234
+\`\`\`
+
+\`\`\`
+fix(OpportunityTrigger): move SOQL outside loop to prevent governor limit
+
+Was executing one query per opportunity in the before-insert trigger.
+Refactored to collect all account IDs first, query once, then map results.
+Peak load scenario was hitting the 101 SOQL limit with ~120 records.
+
+Fixes: SF-2019
+\`\`\`
+
+\`\`\`
+sec(ContactController): enforce WITH USER_MODE on all queries
+
+Previously using default system context, allowing AuraEnabled endpoints
+to return fields the running user does not have FLS access to.
+All queries now use WITH USER_MODE.
+
+BREAKING CHANGE: Users without FLS on restricted fields will no longer
+receive those fields in API responses.
+Closes: SEC-087
+\`\`\`
+
+\`\`\`
+meta(LeadStatus): add 'Qualified - Partner' picklist value
+
+Required by the partner portal team for partner-sourced lead tracking.
+Value maps to 'Working' stage in the lead scoring model.
+
+Ticket: SF-3301
+\`\`\`
+
+## Anti-Patterns to Reject in PR Review
+
+| Bad | Why | Better |
+|-----|-----|--------|
+| \`fix bug\` | No context | \`fix(CaseTrigger): prevent null pointer on missing AccountId\` |
+| \`WIP\` | Never merge WIP | Squash before merge |
+| \`Updated files\` | States the obvious | Explain what changed and why |
+| \`Per John's request\` | Names rot; reasons don't | Describe the business reason |
+| \`misc changes\` | Untraceable | Split into typed commits |
+
+## Done Criteria
+
+Every commit on the branch has a type, a summary under 72 characters, and a ticket reference (where applicable).
+`,
+    '.cursor/skills/salesforce-permissions/SKILL.md': `---
+name: salesforce-permissions
+description: "Salesforce permissions and sharing model: OWD, Role Hierarchy, Permission Set design, CRUD/FLS enforcement, and guest user hardening."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# Salesforce Permissions & Security Model Skill
+
+> SF AI Toolkit — project-level skill. Org security model: Profiles → Permission Sets → Permission Set Groups → Sharing Rules → Manual Sharing.
+
+## When to Use
+
+- Designing object, field, or record access for a new feature
+- Reviewing Permission Sets before deployment
+- Troubleshooting "insufficient privileges" errors
+- Hardening a guest user or community user profile
+- Preparing for an AppExchange security review
+
+## Security Model Layers
+
+\`\`\`
+Organisation-Wide Defaults (OWD) — baseline record visibility for each object
+  └── Role Hierarchy — managers inherit subordinates' record access
+       └── Sharing Rules — criteria-based or ownership-based record sharing
+            └── Manual Sharing — ad-hoc record shares
+                 └── Apex Managed Sharing — programmatic sharing (uses Share objects)
+
+Object Access: Profile / Permission Set — CRUD per object
+Field Access:  Profile / Permission Set — Read / Edit per field
+Record Access: OWD + Role Hierarchy + Sharing Rules + Manual Sharing
+\`\`\`
+
+## Golden Rules
+
+1. **Never modify Profiles for new functionality.** Add a Permission Set and assign it.
+2. **Minimum necessary access.** Grant only the CRUD and FLS needed for the task — never "View All" as a shortcut.
+3. **OWD should be restrictive** (Private or Public Read Only) — open up with Sharing Rules, not by relaxing OWD globally.
+4. **Guest user = most restrictive.** Treat Guest as an untrusted external user. Never grant Modify All or View All.
+5. **Test as a non-admin user** before every deployment — admin sees everything; your users may not.
+6. **Use Permission Set Groups** to bundle related permissions — easier to assign and audit than individual Permission Sets.
+
+## Permission Set Design
+
+\`\`\`
+PS_FeatureName_Read      — Object Read + relevant field reads
+PS_FeatureName_Write     — Object CRUD + relevant field reads/edits
+PS_FeatureName_Admin     — Above + admin-only fields and Apex class access
+\`\`\`
+
+Assign the narrowest set. Use Groups to combine:
+\`\`\`
+PSG_SalesRep = PS_Account_Read + PS_Opportunity_Write + PS_Case_Read
+\`\`\`
+
+## Apex CRUD/FLS Enforcement
+
+\`\`\`apex
+// WITH USER_MODE enforces both CRUD and FLS automatically (API v50+)
+List<Account> accs = [SELECT Id, Name, AnnualRevenue FROM Account WITH USER_MODE];
+
+// For DML with USER_MODE
+Database.insert(records, AccessLevel.USER_MODE);
+
+// Manual FLS check when USER_MODE is not possible
+Schema.DescribeSObjectResult objDesc = Schema.SObjectType.Account;
+if (!objDesc.isAccessible()) throw new SecurityException('No access to Account');
+\`\`\`
+
+## Sharing Model Design
+
+| OWD | Use When |
+|-----|---------|
+| Private | Records are sensitive and users should only see their own (e.g., HR records) |
+| Public Read Only | Users need to view all records but only edit their own |
+| Public Read/Write | Collaboration object — most users need full access |
+| Controlled by Parent | Detail in a Master-Detail — inherits parent sharing |
+
+Open up from Private/Read-Only using:
+- **Role Hierarchy** — managers see subordinates' records (automatic, no config)
+- **Ownership-Based Sharing Rules** — share records owned by Role X with Role Y
+- **Criteria-Based Sharing Rules** — share records matching field criteria with a group
+- **Apex Managed Sharing** — programmatic, survives recalculation if \`rowCause != Manual\`
+
+## Checklist
+
+- [ ] No new feature grants added to Profiles — Permission Sets used instead
+- [ ] Permission Sets follow minimum-access principle
+- [ ] OWD is Private or Read-Only for sensitive objects
+- [ ] Sharing Rules designed to open from restrictive OWD — not to tighten from Public
+- [ ] Guest user profile reviewed — no object CRUD beyond what is necessary
+- [ ] \`WITH USER_MODE\` (or manual CRUD/FLS checks) on all Apex data access
+- [ ] Permission Sets tested by logging in as an assigned user in sandbox
+- [ ] Permission Set assignments do not duplicate Profile grants (audit for redundancy)
+
+## Done Criteria
+
+Access model documented, Permission Sets peer-reviewed, tested as a non-admin user, and sign-off from data owner.
+`,
+    // ─── AFV Library skills (forcedotcom/afv-library) ───────────────────────────
+    // Install the full library with: npx skills add forcedotcom/afv-library
+    // These are summaries — the library's own SKILL.md files take precedence when installed.
+    '.cursor/skills/afv-generating-apex/SKILL.md': `---
+name: afv-generating-apex
+description: "AFV Library: production-grade Apex class generation with Service/Selector/Domain pattern and hard-stop governor limit constraints."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Apex
+
+> Source: forcedotcom/afv-library · generating-apex
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Production-grade Apex authoring: services, selectors, domains, batch/queueable jobs, triggers, DTOs, REST resources, and code review.
+
+## When to Activate
+
+- User mentions Apex, \`.cls\`, \`.trigger\`, or asks to create/refactor a class
+- Requests involve SObject CRUD, collections, async jobs, or trigger design
+
+## Core Workflow (8 steps)
+
+1. Discover project conventions (Service-Selector-Domain pattern, logging)
+2. Choose the smallest correct pattern
+3. Read matching template from \`assets/\`
+4. Author with guardrails (apply all Rules)
+5. Generate test classes via generating-apex-test skill
+6. Run code analyzer and remediate violations
+7. Execute tests and capture coverage
+8. Report with actual tool output
+
+## Hard-Stop Rules
+
+- **Sharing keyword required** on every class; default \`with sharing\`
+- **SOQL/DML outside loops** — governor limit protection
+- **Bind variables** for any dynamic SOQL with user input
+- **Exception handling** — log, rethrow, or recover; never silent fail
+- **No \`@future\`** — use Queueable + Finalizer instead
+- **No hardcoded IDs** — use Custom Metadata/Labels
+- **No \`System.debug()\` in main paths** — use logging framework
+- **Collections over single-record methods** — List, Map, Set always
+
+## Naming Patterns
+
+| Type | Pattern | Example |
+|---|---|---|
+| Service | \`{SObject}Service\` | \`AccountService\` |
+| Selector | \`{SObject}Selector\` | \`AccountSelector\` |
+| Batch | \`{Descriptive}Batch\` | \`AccountDeduplicationBatch\` |
+| Queueable | \`{Descriptive}Queueable\` | \`ExternalSyncQueueable\` |
+| REST Resource | \`{SObject}RestResource\` | \`AccountRestResource\` |
+
+## What to Provide
+
+- Class type (service, selector, batch, queueable, etc.)
+- Target object(s) and business goal
+- Current project conventions (if known)
+- Deployment constraints (API version, org-specific rules)
+`,
+    '.cursor/skills/afv-generating-apex-test/SKILL.md': `---
+name: afv-generating-apex-test
+description: "AFV Library: disciplined Apex test creation with one-behaviour-per-method, 251+ bulk records, and Assert class usage."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Apex Tests
+
+> Source: forcedotcom/afv-library · generating-apex-test
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Disciplined Apex test creation with production-quality patterns.
+
+## Core Priorities
+
+- **One behavior per test method** — separate positive, negative, and bulk scenarios
+- **Bulkify with 251+ records** to cross trigger batch boundaries
+- **Isolate test data** via \`TestDataFactory\` — no inline records, no org data
+- **Assert with exact values** using the \`Assert\` class exclusively (not legacy \`System.assert*\`)
+- **Mock external dependencies** — callouts, SOSL, database operations
+- **Wrap code under test** in \`Test.startTest() / Test.stopTest()\`
+
+## Workflow
+
+1. Gather context — identify target classes, existing factories, coverage goals
+2. Generate test class using Given/When/Then structure
+3. Run tests narrowly before broader regression suites
+4. Analyze failures — root cause (test data, assertions, or production logic)
+5. Fix in disciplined loops (max 3 iterations) before escalating design issues
+6. Validate coverage — target 90%+ with 100% on critical paths
+
+## Test Structure
+
+\`\`\`apex
+@isTest
+static void shouldUpdateStatus_WhenValidInput() {
+    // Given — setup via TestDataFactory
+    // When — execute under Test.startTest/stopTest
+    // Then — assert with exact expected values using Assert class
+}
+\`\`\`
+
+**Deliverables:** Always create both the \`.cls\` test file and its \`.cls-meta.xml\` metadata file. If no \`TestDataFactory\` exists, create that too.
+`,
+    '.cursor/skills/afv-generating-flow/SKILL.md': `---
+name: afv-generating-flow
+description: "AFV Library: Salesforce Flow generation via mandatory 3-step MCP pipeline — fetchGroundedObjectMetadata, flowElementSelection, flowElementGeneration."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Flow
+
+> Source: forcedotcom/afv-library · generating-flow
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Generates Salesforce Flow metadata using a mandatory 3-step MCP pipeline.
+
+## The Pipeline (Non-Negotiable)
+
+1. **fetchGroundedObjectMetadata** — Fetch org schema metadata relevant to the flow
+2. **flowElementSelection** — Select flow elements and connections based on user prompt
+3. **flowElementGeneration** — Generate metadata element-by-element in a loop until \`isComplete\` returns \`true\`
+
+"This pipeline is the ONLY supported way to generate flows. Any deviation will produce invalid or broken metadata."
+
+## Critical Rules
+
+- **No manual XML creation** — flows must only be generated through this pipeline
+- **Loop Step 3 continuously** until \`isComplete\` is \`true\` — do not pause or ask for confirmation
+- **Multiple flows** require sequential pipelines — split into separate single-flow prompts
+- **inflightMetadata must be an array** containing custom objects/fields from the local SFDX project
+- **Pass groundingMetadata directly** from Step 1 to Step 2 without re-serializing
+- **Use \`"A4V"\` for requestSource** in Step 3 to obtain XML format output
+
+## Single Exception
+
+Manual XML edits are permitted only when the user explicitly requests fixes to validation or deployment errors in an already-generated flow.
+`,
+    '.cursor/skills/afv-generating-custom-object/SKILL.md': `---
+name: afv-generating-custom-object
+description: "AFV Library: deployable Custom Object metadata with correct sharing model, name field type, and Master-Detail constraints."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Custom Object
+
+> Source: forcedotcom/afv-library · generating-custom-object
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Mandatory constraints for creating deployable \`.object-meta.xml\` files.
+
+## Required Elements
+
+- \`<label>\` (singular) and \`<pluralLabel>\` (plural)
+- \`<sharingModel>\` — \`ReadWrite\` unless the object has a Master-Detail relationship
+- \`<deploymentStatus>\` set to \`Deployed\`
+- \`<nameField>\` with label and type
+- \`<visibility>\` set to \`Public\`
+
+## Critical Sharing Model Rule
+
+If the object contains a Master-Detail relationship field, \`<sharingModel>\` MUST be \`ControlledByParent\`. Using \`ReadWrite\` with Master-Detail causes deployment errors.
+
+## Name Field Options
+
+- **Text**: Default for entities like projects or teams
+- **AutoNumber**: For transactions/IDs — requires \`<displayFormat>\` and \`<startingNumber>\`
+
+## Common Mistakes
+
+1. Never include \`<fullName>\` tags in the XML root — API name derives from the filename
+2. Validation rule names cannot end with \`__c\`
+3. Do not exceed 2 Master-Detail relationships per object
+4. Avoid reserved words (\`Select\`, \`User\`, \`Date\`) in API names
+
+## Feature Enablement
+
+Enable \`<enableSearch>\`, \`<enableReports>\`, \`<enableActivities>\`, \`<enableHistory>\` for user-facing objects only.
+`,
+    '.cursor/skills/afv-generating-custom-field/SKILL.md': `---
+name: afv-generating-custom-field
+description: "AFV Library: Custom Field metadata generation preventing high-failure-rate deployment errors on Master-Detail and Roll-Up Summary fields."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Custom Field
+
+> Source: forcedotcom/afv-library · generating-custom-field
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Generates and validates Salesforce custom field metadata, preventing the most common deployment errors.
+
+## Supported Field Types
+
+Simple: Text, Number, Email, Phone, Date/Time, Checkbox, URL
+Relationship: Lookup, Master-Detail
+Computed: Formula, Roll-Up Summary
+Picklists: Standard and multi-select
+Specialized: Geolocation, AutoNumber
+
+## High-Failure-Rate Field Rules
+
+**Master-Detail fields** — these attributes are FORBIDDEN and cause deployment errors:
+- \`<required>\`
+- \`<deleteConstraint>\`
+- \`<lookupFilter>\`
+
+**Roll-Up Summary fields:**
+- \`summaryForeignKey\` and \`summarizedField\` must use \`ChildObject__c.FieldName__c\` format
+- Exclude precision/scale attributes
+
+## Mandatory Attributes on All Fields
+
+- \`fullName\` — API name
+- \`label\` — display label
+- \`description\` — what the field stores
+- \`inlineHelpText\` — user-facing help
+
+## Numeric Constraints
+
+- precision ≤ 18
+- scale ≤ precision
+`,
+    '.cursor/skills/afv-generating-permission-set/SKILL.md': `---
+name: afv-generating-permission-set
+description: "AFV Library: deployable Permission Set metadata with least-privilege principles and required-field exclusion from FLS."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Permission Set
+
+> Source: forcedotcom/afv-library · generating-permission-set
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Creates deployable Salesforce permission set metadata compatible with Metadata API v60.0+.
+
+## Core Structure (Required)
+
+Three foundational elements before any access controls:
+1. \`fullName\` — API name
+2. \`label\` — display label
+3. \`description\` — purpose and scope
+
+## Object & Field Permissions
+
+- Configure CRUD operations at the object level first
+- Then specify field-level security
+- **CRITICAL: Required fields must NEVER appear in field permissions** — causes deployment failure
+
+## User Permissions
+
+Grant capabilities like API access, report execution, user management via \`userPermissions\`. Sensitive permissions like \`ViewAllData\` require security review.
+
+## Application Visibility
+
+- Custom tabs require the \`__c\` suffix
+- Standard objects use the \`standard-\` prefix format
+
+## Deployment Requirements
+
+- Verify API names match exactly
+- Follow least privilege principles
+- Exclude required fields from FLS configurations
+- Avoid duplicate entries
+- Deploy via Salesforce CLI: \`sf project deploy start\`
+`,
+    '.cursor/skills/afv-developing-agentforce/SKILL.md': `---
+name: afv-developing-agentforce
+description: "AFV Library: build, modify, debug, and deploy Agentforce agents using Agent Script and AiAuthoringBundle metadata."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Developing Agentforce
+
+> Source: forcedotcom/afv-library · developing-agentforce
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Builds, modifies, debugs, and deploys AI agents using Agent Script on the Atlas Reasoning Engine.
+
+## Core Artifact
+
+**AiAuthoringBundle** — directory containing a \`.agent\` file (Agent Script source) and bundle metadata.
+
+Agent Script is NOT AppleScript, JavaScript, Python, or any other language.
+
+## Task Domains (7)
+
+1. **Create an Agent** — design, validate, generate code, stub backing logic, test, publish, activate
+2. **Comprehend an Existing Agent** — reverse-engineer purpose and structure
+3. **Modify an Existing Agent** — add, remove, or change subagents and flow control
+4. **Diagnose Compilation Errors** — resolve validation failures using error taxonomy
+5. **Diagnose Behavioral Issues** — fix runtime mismatches using session trace analysis
+6. **Deploy, Publish, and Activate** — move from development to production
+7. **Diagnose Production Issues** — troubleshoot live agent problems
+
+## Critical Rules
+
+- Always include \`--json\` on every CLI command
+- Verify target org before interactions
+- Never proceed past Agent Spec creation without explicit user approval
+- Follow required steps verbatim — do not substitute custom plans
+- Diagnose with live-action previews before modifying code
+
+## The Agent Spec
+
+The authoritative design document throughout the lifecycle — captures purpose, subagent graphs, actions, variables, gating logic, and behavioral intent.
+
+## Quality Rubric (100 points)
+
+Evaluated across 7 categories: structure, safety, deterministic logic, instruction resolution, FSM architecture, action configuration, deployment readiness.
+
+## Key CLI Commands
+
+\`\`\`bash
+sf agent validate authoring-bundle --json --api-name <AgentName> -o <org>
+sf agent publish authoring-bundle --json --api-name <AgentName> -o <org>
+sf agent preview start --json --authoring-bundle <BundleName> -o <org>
+sf agent preview send --json --session-id "$SID" --utterance "<text>" --authoring-bundle <BundleName> -o <org>
+\`\`\`
+`,
+    '.cursor/skills/afv-testing-agentforce/SKILL.md': `---
+name: afv-testing-agentforce
+description: "AFV Library: Agentforce agent testing via sf agent preview (Mode A) and Testing Center YAML specs (Mode B)."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Testing Agentforce
+
+> Source: forcedotcom/afv-library · testing-agentforce
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Automated testing for Salesforce Agentforce agents. Requires sf CLI 2.121.7 or later.
+
+## Two Primary Modes
+
+**Mode A — Ad-Hoc Preview Testing**
+Uses \`sf agent preview\` for quick smoke tests during development. Automatically derives utterances from agent subagents. Generates local trace files for analysis.
+
+**Mode B — Batch Testing**
+Deploys persistent YAML test suites to Testing Center for regression testing and CI/CD integration.
+
+\`\`\`bash
+# Mode A
+sf agent preview start --json --authoring-bundle <BundleName> -o <org>
+sf agent preview send --json --session-id "$SID" --utterance "<text>" --authoring-bundle <BundleName> -o <org>
+
+# Mode B
+sf agent test run --json --api-name <TestSuiteName> --wait 10 --result-format json -o <org>
+sf agent test results --json --job-id "$JOB_ID" --result-format json -o <org>
+\`\`\`
+
+## Safety Rule
+
+"Always present the plan first — never silently auto-run tests without showing what will be tested."
+
+## Key Features
+
+- Automated utterance derivation from agent subagent descriptions
+- Trace analysis using jq commands
+- Iterative fix loops (max 3 iterations)
+- Explicit safety verdicts: SAFE / UNSAFE / NEEDS_REVIEW
+- Direct REST API invocation of Flow and Apex actions for isolated testing
+
+## Trace File Location
+
+\`.sfdx/agents/{BundleName}/sessions/{sessionId}/traces/{planId}.json\`
+`,
+    '.cursor/skills/afv-observing-agentforce/SKILL.md': `---
+name: afv-observing-agentforce
+description: "AFV Library: analyze production Agentforce behavior using STDM session traces — Observe, Reproduce, and Improve workflow."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Observing Agentforce
+
+> Source: forcedotcom/afv-library · observing-agentforce
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Analyzes production Agentforce agent behavior using session traces and Data Cloud STDM.
+
+**Use when:** querying STDM session data, investigating production failures, analyzing session traces, reproducing reported issues.
+**Do not use when:** creating/modifying \`.agent\` files (use developing-agentforce), writing test specs (use testing-agentforce).
+
+## Three-Phase Workflow
+
+### Phase 1 — Observe
+Query STDM sessions from Data Cloud (if available), or use test suites + preview with local traces as fallback.
+
+\`\`\`bash
+# Check STDM availability
+sf apex run -o <org> -f /dev/stdin << 'APEX'
+ConnectApi.CdpQueryInput qi = new ConnectApi.CdpQueryInput();
+qi.sql = 'SELECT ssot__Id__c FROM "ssot__AiAgentSession__dlm" LIMIT 1';
+ConnectApi.CdpQueryOutputV2 out = ConnectApi.CdpQuery.queryAnsiSqlV2(qi, 'default');
+System.debug('STDM_CHECK:OK');
+APEX
+\`\`\`
+
+If STDM unavailable: run test suites + \`sf agent preview --authoring-bundle\` with local trace analysis.
+
+### Phase 2 — Reproduce
+Use \`sf agent preview\` to simulate problematic conversations live. Run each scenario 3 times:
+- \`[CONFIRMED]\` — fails in 3/3 runs
+- \`[INTERMITTENT]\` — fails in 1–2 of 3 runs
+- \`[NOT REPRODUCED]\` — passes in 3/3 runs
+
+Only CONFIRMED and INTERMITTENT issues proceed to Phase 3.
+
+### Phase 3 — Improve
+Edit the \`.agent\` file directly, validate, publish, and verify.
+
+\`\`\`bash
+sf agent validate authoring-bundle --json --api-name <AgentName> -o <org>
+sf agent publish authoring-bundle --json --api-name <AgentName> -o <org>
+\`\`\`
+
+After 24–48 hours, re-run Phase 1 to compare against baseline.
+`,
+    '.cursor/skills/afv-generating-validation-rule/SKILL.md': `---
+name: afv-generating-validation-rule
+description: "AFV Library: Salesforce Validation Rule metadata with correct formula functions, CDATA handling, and errorMessage constraints."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Validation Rule
+
+> Source: forcedotcom/afv-library · generating-validation-rule
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Creates, modifies, and validates Salesforce Validation Rules.
+
+## Required Metadata Properties
+
+- \`fullName\` — API name (letters/numbers/underscores, max 40 chars, cannot end with underscore)
+- \`active\` — Boolean (true = enabled)
+- \`errorConditionFormula\` — Boolean formula; TRUE triggers the error
+- \`errorMessage\` — User-facing message (max 255 chars)
+
+## File Format
+
+Always use \`.validationRule-meta.xml\` extension.
+
+## Critical Formula Rules
+
+| Mistake | Fix |
+|---------|-----|
+| \`TEXT()\` with text fields | Remove the function — it's for picklists |
+| \`CASE()\` without default | Add default value as final parameter |
+| \`VALUE()\` on non-text fields | Only works with text fields |
+| \`DAY()\`/\`MONTH()\` on datetime | Convert with \`DATEVALUE()\` first |
+| Comparing picklist fields with \`=\` | Use \`ISPICKVAL()\` instead |
+| Detecting value changes | Use \`ISCHANGE()\` |
+
+## XML Handling
+
+Wrap \`errorConditionFormula\` containing \`<\`, \`>\`, \`&\` in CDATA sections to prevent XML parse errors.
+
+## Update Rule
+
+Distinguish between replacement ("update to") versus addition ("also add") — these are different operations on the formula.
+`,
+    '.cursor/skills/afv-generating-flexipage/SKILL.md': `---
+name: afv-generating-flexipage
+description: "AFV Library: Lightning Page (FlexiPage) generation using CLI template bootstrap with strict XML encoding and unique identifier rules."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating FlexiPage
+
+> Source: forcedotcom/afv-library · generating-flexipage
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Creates and modifies Salesforce Lightning Pages (FlexiPages).
+
+## Critical Rule
+
+"Always use the CLI template command when creating a new FlexiPage." The CLI generates valid XML structure, proper regions, and correct metadata.
+
+## Workflow
+
+1. Bootstrap with CLI template command
+2. Deploy base page (dry-run validation first)
+3. Stop — do not add further modifications until the base page deploys cleanly
+
+## Template Requirements
+
+| Page Type | Required Flags |
+|-----------|--------------|
+| RecordPage | \`--sobject\`, \`--primary-field\`, \`--secondary-fields\`, \`--detail-fields\` |
+| AppPage | No additional flags |
+| HomePage | No additional flags |
+
+## XML Rules
+
+- **Property encoding order:** \`&\` first, then \`<\`, \`>\`, \`"\`, \`'\`
+- **Field references:** must use \`Record.{FieldApiName}\` format — never \`ObjectName.Field\`
+- **Unique identifiers:** all \`<identifier>\` and \`<name>\` values must be unique across the entire file
+- **Duplicate regions:** combine multiple components targeting the same facet into one region with multiple \`<itemInstances>\` — never create separate regions with duplicate names
+- **Each fieldInstance** requires its own \`<itemInstances>\` wrapper with \`uiBehavior\`
+`,
+    '.cursor/skills/afv-generating-lightning-app/SKILL.md': `---
+name: afv-generating-lightning-app
+description: "AFV Library: complete Lightning app orchestration across five phases — Data Model, Business Logic, UI, Assembly, and Security."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Lightning App
+
+> Source: forcedotcom/afv-library · generating-lightning-app
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Builds complete Salesforce Lightning Experience applications from natural language descriptions.
+
+**Use when:** users request "complete apps" or "end-to-end solutions" involving multiple interconnected components — not for isolated objects or pages.
+
+## Five Sequential Phases
+
+1. **Data Model** — Custom Objects and Fields
+2. **Business Logic** — Validation Rules and Flows (if requested)
+3. **User Interface** — List Views, Tabs, and FlexiPages
+4. **Application Assembly** — The Lightning App container
+5. **Security** — Permission Sets
+
+## Execution Pattern (For Each Phase)
+
+1. Load the specialized skill for the metadata type
+2. Call API context tools to confirm valid values
+3. Record completion status
+4. Generate files only after both previous steps complete
+
+"The skill provides structure; API context provides version-specific accuracy. Both are essential."
+
+## Key Rule
+
+Skills must be invoked when available rather than generating metadata directly. This prevents deployment failures.
+
+## Output
+
+- Organized SFDX project directories
+- Deployment manifests
+- Build summaries documenting all created components and relationships
+`,
+    '.cursor/skills/afv-uplifting-to-slds2/SKILL.md': `---
+name: afv-uplifting-to-slds2
+description: "AFV Library: migrate Lightning Web Components from SLDS 1 to SLDS 2 using the SLDS linter and styling hook categories."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Uplifting Components to SLDS 2
+
+> Source: forcedotcom/afv-library · uplifting-components-to-slds2
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Migrates Lightning Web Components from SLDS 1 to SLDS 2 using the SLDS linter.
+
+## Workflow
+
+\`\`\`bash
+npx @salesforce-ux/slds-linter@latest lint --fix .
+\`\`\`
+
+Then systematically fix the four violation types in order.
+
+## Four Violation Types
+
+1. **Hardcoded values** → Replace with SLDS 2 styling hooks + fallbacks
+2. **Deprecated LWC tokens** → Migrate to SLDS 2 hooks
+3. **SLDS class overrides** → Rename CSS classes and update markup
+4. **Legacy Aura syntax** → Convert \`t()\`/\`token()\` to modern hooks
+
+## Styling Hook Categories
+
+| Category | Hook Pattern | Example |
+|----------|------------|---------|
+| Color | \`--slds-g-color-*\` | \`--slds-g-color-brand-base-60\` |
+| Spacing | \`--slds-g-spacing-*\` | \`--slds-g-spacing-4\` |
+| Sizing | \`--slds-g-sizing-*\` | — |
+| Typography | \`--slds-g-font-*\` | — |
+| Borders | \`--slds-g-color-border-*\` | — |
+| Radius/Shadows | \`--slds-g-radius-*\` | — |
+
+## Key Principles
+
+- Always include fallback values preserving original CSS
+- Never invent hook names — use only documented SLDS hooks
+- Skip layout values: \`100%\`, \`auto\`, \`0\`, \`inherit\`, \`none\`
+- Match hook intensity to the original value
+- Use \`color-mix()\` for transparency preservation
+`,
+    '.cursor/skills/afv-switching-org/SKILL.md': `---
+name: afv-switching-org
+description: "AFV Library: change active Salesforce org using sf config set target-org with local and global scope."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Switching Org
+
+> Source: forcedotcom/afv-library · switching-org
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Changes your active Salesforce org using the Salesforce CLI (sf v2+).
+
+## Steps
+
+**1. Identify the org:** Provide a username or alias.
+\`\`\`bash
+sf org list
+\`\`\`
+
+**2. Set the default org:**
+\`\`\`bash
+# Local scope (project-specific) — use this for normal project work
+sf config set target-org <orgIdentifier>
+
+# Global scope (system-wide) — only when explicitly requested
+sf config set target-org <orgIdentifier> --global
+\`\`\`
+
+**3. Verify the change:**
+\`\`\`bash
+sf config get target-org --json
+\`\`\`
+
+## Notes
+
+- Use \`target-org\` and \`target-dev-hub\` (not the deprecated \`defaultusername\`)
+- Local scope is the default — no \`--local\` flag needed
+- If org doesn't change, check whether \`SF_TARGET_ORG\` environment variable is set (it overrides config)
+- If authentication fails: \`sf org login web\`
+`,
+    '.cursor/skills/afv-building-ui-bundle-app/SKILL.md': `---
+name: afv-building-ui-bundle-app
+description: "AFV Library: orchestrate end-to-end Salesforce React UI bundle app through seven phases — scaffold, features, data, UI, integrations, deploy, site."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Building UI Bundle App
+
+> Source: forcedotcom/afv-library · building-ui-bundle-app
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Coordinates end-to-end development of complete, deployable Salesforce React UI bundle applications.
+
+**Triggers when:** user requests building a React app, UI bundle, or full-stack Salesforce web application.
+
+## Seven-Phase Build Architecture
+
+Each phase requires: load the corresponding sub-skill → execute its workflow → verify results before proceeding.
+
+| Phase | Sub-Skill | What It Does |
+|-------|----------|-------------|
+| 1. Scaffolding | generating-ui-bundle-metadata | Scaffold the UI bundle structure |
+| 2. Features | generating-ui-bundle-features | Install auth, search, and other features |
+| 3. Data Access | using-ui-bundle-salesforce-data | Wire up Data SDK and GraphQL |
+| 4. UI | building-ui-bundle-frontend | Build pages, components, layout, styling |
+| 5. Integrations | implementing-ui-bundle-agentforce-conversation-client / implementing-ui-bundle-file-upload | Add Agentforce chat or file upload |
+| 6. Deployment | deploying-ui-bundle | Deploy metadata, permissions, schema |
+| 7. Experience Site (optional) | generating-ui-bundle-site | Create Digital Experience site to host the app |
+
+## Quality Standards
+
+- No boilerplate text in the UI
+- Linting passes without errors
+- Functional navigation and data integration demonstrated
+`,
+    '.cursor/skills/afv-building-ui-bundle-frontend/SKILL.md': `---
+name: afv-building-ui-bundle-frontend
+description: "AFV Library: frontend development for UI bundle apps — pages, components, layout, styling, Tailwind CSS, and TypeScript standards."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Building UI Bundle Frontend
+
+> Source: forcedotcom/afv-library · building-ui-bundle-frontend
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Frontend development for files under \`uiBundles/*/src/\` — pages, components, layout, styling.
+
+**Triggers when:** editing pages, components, layout, styling, colors, fonts, navigation, animations, or look-and-feel in an existing UI bundle app.
+
+## Task Types
+
+| Task | Scope |
+|------|-------|
+| Page | New route + component under \`src/pages/\` |
+| Header/Footer | Layout changes in \`appLayout.tsx\` |
+| Component | Reusable component under \`src/components/\` |
+
+## Standards
+
+**React & TypeScript**
+- Routing with dynamic base paths
+- Component library: shadcn/ui
+- Styling: Tailwind CSS
+- Strict TypeScript — no \`any\`
+- No restricted module imports
+
+**Design Thinking (before coding)**
+- Typography hierarchy
+- Color contrast and brand consistency
+- Motion and transitions
+- Spatial composition and white space
+- Mobile responsiveness
+
+## Verification Requirements
+
+After every change:
+- Linting passes
+- Navigation works end-to-end
+- Data loads and renders correctly
+- Mobile layout is acceptable
+`,
+    '.cursor/skills/afv-deploying-ui-bundle/SKILL.md': `---
+name: afv-deploying-ui-bundle
+description: "AFV Library: UI bundle deployment in correct order — build, deploy metadata, permissions, data, schema codegen, final build."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Deploying UI Bundle
+
+> Source: forcedotcom/afv-library · deploying-ui-bundle
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Critical order of operations for deploying Salesforce UI bundles.
+
+## Deployment Sequence (Must Follow This Order)
+
+1. **Org Authentication** — verify target org is authenticated
+2. **Pre-deploy UI Bundle Build** — build the React app before deploying metadata
+3. **Deploy Metadata** — deploy SFDX metadata to the org
+4. **Post-deploy Configuration** — assign permission sets, profiles, custom settings
+5. **Data Import** (optional) — import seed or reference data
+6. **GraphQL Schema and Codegen** — fetch schema, regenerate TypeScript types
+7. **Final UI Bundle Build** — rebuild with correct schema types
+
+## Critical Rules
+
+- Deploy metadata BEFORE fetching GraphQL schema
+- Assign permission sets BEFORE schema fetch — schema fetch requires access
+- Never skip permission set assignment silently
+- Never skip data import silently if it is required
+
+## Why Order Matters
+
+Schema fetch fails if the user running it does not have object/field access. The permission set grants that access. Deploying metadata first ensures the objects exist for the schema fetch to discover.
+`,
+    '.cursor/skills/afv-using-ui-bundle-salesforce-data/SKILL.md': `---
+name: afv-using-ui-bundle-salesforce-data
+description: "AFV Library: access Salesforce data from React UI bundles using the Data SDK with GraphQL, @optional directives, and TypeScript codegen."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Using UI Bundle Salesforce Data
+
+> Source: forcedotcom/afv-library · using-ui-bundle-salesforce-data
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Accessing Salesforce records from React UI bundles using the Data SDK (\`@salesforce/sdk-data\`).
+
+## Core Requirement
+
+ALL Salesforce data access from a UI bundle MUST use the Data SDK. No direct REST calls to Salesforce APIs from frontend code.
+
+## Supported APIs (in preference order)
+
+1. **GraphQL** (preferred) — for all record queries and mutations
+2. **UI API** — for record forms and layout-aware data
+3. **Apex REST** — for complex business logic
+4. **Connect REST** — for Salesforce Connect/platform APIs
+5. **Einstein LLM** — for AI/LLM capabilities
+
+**Blocked:** Enterprise REST query endpoint (\`/services/data/vXX.X/query\`) — use GraphQL instead.
+
+## GraphQL Non-Negotiable Rules
+
+1. Every nullable field must use \`@optional\` directive
+2. All queries must handle HTTP 200 with \`errors\` array (partial success)
+3. Use \`useQuery\` hook for reads, \`useMutation\` for writes
+4. Always generate TypeScript types from schema: \`npx @salesforce/code-analyzer-graphql-codegen\`
+5. Acquire schema before writing queries: \`sf data graphql schema generate\`
+6. Queries must be in \`src/api/\` directory
+7. Error handling is mandatory — never assume data is present
+
+## Workflow
+
+1. Acquire schema (\`sf data graphql schema generate\`)
+2. Look up entities in schema
+3. Generate query
+4. Generate TypeScript types from query
+5. Validate in Query Editor
+`,
+    '.cursor/skills/afv-creating-b2b-commerce-store/SKILL.md': `---
+name: afv-creating-b2b-commerce-store
+description: "AFV Library: create a Salesforce B2B Commerce Store and retrieve its storefront metadata via a 7-step guided workflow."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Creating B2B Commerce Store
+
+> Source: forcedotcom/afv-library · creating-b2b-commerce-store
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Establishes a Salesforce Commerce B2B Store and retrieves its associated storefront metadata.
+
+## Key Concept
+
+"Commerce has Store (data) + Storefront (metadata). Store must be created first."
+
+- **Store** = the data record created in the Commerce app UI
+- **Storefront** = the metadata retrieved via CLI after the store exists
+
+## 7-Step Process
+
+1. Explain the Store vs Storefront concept to the user
+2. Guide the user through the Commerce wizard in Setup to create the store
+3. Ask the user to confirm the exact store name once created
+4. List available sites: \`sf org list metadata --metadata-type Network --json -o <org>\`
+5. Present sites for user selection
+6. Retrieve storefront metadata: \`sf project retrieve start --metadata "Network:<StoreName>" --json -o <org>\`
+7. Confirm success and explain next steps
+
+## CLI Rules
+
+- All CLI commands must include the \`--json\` flag
+- Always verify target org before any command
+`,
+    '.cursor/skills/afv-generating-custom-application/SKILL.md': `---
+name: afv-generating-custom-application
+description: "AFV Library: Lightning Application metadata with correct navType, formFactors, branding, and profile action overrides."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Custom Application
+
+> Source: forcedotcom/afv-library · generating-custom-application
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Creates Salesforce Lightning Application metadata.
+
+## Key Choice: navType
+
+\`navType\` is the most important configuration decision:
+
+| Value | Use For |
+|-------|---------|
+| \`Standard\` | General-purpose apps with tab navigation |
+| \`Console\` | Service Cloud, Sales Engagement — multi-panel workspace |
+
+## Required Properties
+
+\`\`\`xml
+<fullName>MyApp</fullName>
+<label>My App</label>
+<uiType>Lightning</uiType>
+<navType>Standard</navType>  <!-- or Console -->
+<formFactors>
+    <formFactor>Large</formFactor>
+    <formFactor>Small</formFactor>
+</formFactors>
+\`\`\`
+
+## Highly Recommended
+
+- Branding (logo, colors) via \`<brandingSet>\`
+- Action overrides for consistent UX
+- Profile action overrides for role-based navigation
+
+## Best Practices
+
+- Consistent naming: app API name matches business domain
+- Logical tab grouping — related objects together
+- Cross-device testing (Large + Small form factors)
+- Accessibility review before deployment
+`,
+    '.cursor/skills/afv-generating-custom-lightning-type/SKILL.md': `---
+name: afv-generating-custom-lightning-type
+description: "AFV Library: Custom Lightning Type (CLT) JSON Schema definitions for structured Einstein Agent action inputs and outputs."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Custom Lightning Type (CLT)
+
+> Source: forcedotcom/afv-library · generating-custom-lightning-type
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Custom Lightning Types (CLTs) are JSON Schema-based definitions that structure inputs/outputs for Lightning Platform, controlling editor and renderer UI for Einstein Agent actions.
+
+## When to Use CLTs
+
+- Structured input/output for Einstein Agent actions
+- Complex nested data shapes that Apex \`@InvocableVariable\` cannot express cleanly
+- Reusable type definitions across multiple actions
+
+## Configuration Choices
+
+| Pattern | Use When |
+|---------|---------|
+| Referenced CLT | Type reused across multiple actions |
+| Standard Lightning types | Simple primitives (String, Number, Boolean, Date) |
+| Apex class types | Business logic requires Apex processing |
+
+## Critical Array Rules (SEVERE RESTRICTIONS)
+
+Arrays in CLTs have significant limitations — consult AFV Library full SKILL.md for the complete constraint list before using array types. Incorrect array configuration causes deployment failures that are hard to diagnose.
+
+## Root Object Schema Requirements
+
+- Must include \`type: "object"\`
+- Must include \`properties\` definition
+- Required fields listed in \`required\` array
+
+## Deployment Errors
+
+If you encounter CLT deployment errors, install the full AFV Library skill for the comprehensive error reference:
+\`npx skills add forcedotcom/afv-library\`
+`,
+    '.cursor/skills/afv-generating-custom-tab/SKILL.md': `---
+name: afv-generating-custom-tab
+description: "AFV Library: Custom Tab metadata for Object, Web, and Visualforce tab types with correct XML structure."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating Custom Tab
+
+> Source: forcedotcom/afv-library · generating-custom-tab
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Creates Salesforce Custom Tab metadata via \`.tab-meta.xml\` files.
+
+## Three Tab Types
+
+**Object Tab** — for custom or standard objects
+\`\`\`xml
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MyObject__c</fullName>
+    <label>My Objects</label>
+    <motif>Custom58: Handsaw</motif>
+    <sobjectName>MyObject__c</sobjectName>
+</CustomTab>
+\`\`\`
+
+**Web Tab** — external website in an iframe
+\`\`\`xml
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MyWebTab</fullName>
+    <label>My Web Tab</label>
+    <motif>Custom58: Handsaw</motif>
+    <url>https://example.com</url>
+    <urlEncodingKey>UTF-8</urlEncodingKey>
+</CustomTab>
+\`\`\`
+
+**Visualforce Tab** — Visualforce page
+\`\`\`xml
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MyVFTab</fullName>
+    <label>My VF Tab</label>
+    <motif>Custom58: Handsaw</motif>
+    <page>MyVFPage</page>
+</CustomTab>
+\`\`\`
+
+## Critical Rules
+
+- Root element must be \`<CustomTab>\` with namespace attribute
+- \`fullName\` must match the filename (without extension)
+- For sobjectName: custom objects use \`__c\` suffix; standard objects use the API name
+- Forbidden elements that cause deployment errors vary by tab type — consult full skill
+`,
+    '.cursor/skills/afv-generating-list-view/SKILL.md': `---
+name: afv-generating-list-view
+description: "AFV Library: Salesforce List View metadata with correct column API names, filter scope, and booleanFilterLogic."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating List View
+
+> Source: forcedotcom/afv-library · generating-list-view
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Creates Salesforce List View metadata.
+
+## Storage Location
+
+\`force-app/main/default/objects/<ObjectName>/listViews/<ViewName>.listView-meta.xml\`
+
+## Required Elements
+
+- \`label\` — display name
+- \`fullName\` — API name (must match filename without extension)
+- \`filterScope\` — \`Everything\`, \`Mine\`, \`MyTeam\`, \`Queue\`, etc.
+- \`filters\` — filter criteria (optional but common)
+- \`booleanFilterLogic\` — \`AND\` / \`OR\` logic across filters
+- \`columns\` — fields to display as columns
+
+## Column Naming Rules
+
+- Custom fields: use API name WITH \`__c\` suffix
+- Standard fields: use API name WITHOUT suffix (e.g., \`Name\`, \`CreatedDate\`)
+- Relationship fields: use the relationship name (e.g., \`Account.Name\`)
+
+## Common Deployment Errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| Invalid column field | Wrong API name format | Check __c suffix rules |
+| Invalid filterScope | Unsupported scope for object | Use \`Everything\` as fallback |
+| booleanFilterLogic mismatch | Filter count doesn't match logic | Count filters match logic string |
+
+## Verification Checklist
+
+- [ ] File path matches \`objects/<ObjectName>/listViews/<ViewName>.listView-meta.xml\`
+- [ ] \`fullName\` matches filename
+- [ ] All column API names verified against object schema
+`,
+    '.cursor/skills/afv-searching-media/SKILL.md': `---
+name: afv-searching-media
+description: "AFV Library: search and retrieve existing visual media from Salesforce CMS and Data 360 — present sources before executing."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Searching Media
+
+> Source: forcedotcom/afv-library · searching-media
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Routes requests for searching and retrieving existing visual media from Salesforce CMS and Data 360.
+
+**Triggers when:** user asks to "search for logo", "find hero image", "get existing image", or similar media retrieval requests.
+**Does NOT trigger for:** AI image generation, editing existing images, or creating new visual assets.
+
+## Three-Step Process (Strict)
+
+1. **Present available search sources as text-only options** — list Salesforce CMS and Data 360 as choices
+2. **Wait for user selection** — do NOT call any tool before the user picks a source
+3. **Execute the chosen search method**
+
+## Available Search Methods
+
+**Salesforce CMS**
+- Keywords search across CMS content
+- Filters by content type, channel, and tags
+
+**Data 360**
+- Hybrid search combining keyword and semantic matching
+- Access to brand assets stored in Data Cloud
+
+## Rule
+
+Never call any search tool before the user has explicitly selected a source. Presenting options first is mandatory.
+`,
+    '.cursor/skills/afv-generating-ui-bundle-features/SKILL.md': `---
+name: afv-generating-ui-bundle-features
+description: "AFV Library: install pre-built authentication and search features into Salesforce React UI bundles using the features CLI."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating UI Bundle Features
+
+> Source: forcedotcom/afv-library · generating-ui-bundle-features
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Installs pre-built features into UI bundles using the CLI.
+
+## Two Available Features
+
+| Feature | What It Installs |
+|---------|----------------|
+| **authentication** | Login, logout, protected routes, session management |
+| **search** | Global search across pages and content |
+
+## Workflow
+
+1. Search project code to check if the feature is already installed
+2. Search available features: \`npx @salesforce/ui-bundle-features list --search <query>\`
+3. Describe the feature in detail: add \`--verbose\` flag
+4. Install: \`npx @salesforce/ui-bundle-features install <featureName>\`
+
+## Conflict Handling
+
+Uses a two-pass approach:
+- Pass 1: install non-conflicting files
+- Pass 2: review conflicting files with the user and merge selectively
+
+## Post-Install
+
+Integrate example files from the installed feature into the main app:
+- Wire up routes in \`appLayout.tsx\`
+- Add navigation links
+- Test the full flow end-to-end
+`,
+    '.cursor/skills/afv-generating-ui-bundle-metadata/SKILL.md': `---
+name: afv-generating-ui-bundle-metadata
+description: "AFV Library: scaffold Salesforce UI bundle metadata structure using sf template generate with alphanumeric naming rules."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating UI Bundle Metadata
+
+> Source: forcedotcom/afv-library · generating-ui-bundle-metadata
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Scaffolds the metadata structure for Salesforce UI bundles.
+
+## Scaffold Command
+
+\`\`\`bash
+sf template generate ui-bundle --template reactbasic --name <BundleName>
+\`\`\`
+
+**UI bundle names must be alphanumeric only** — no hyphens, underscores, or spaces.
+
+## UI Bundle Structure
+
+\`\`\`
+uiBundles/
+└── <BundleName>/
+    ├── <BundleName>.uibundle-meta.xml   # Salesforce metadata file
+    ├── dist/                             # Build output (generated)
+    └── src/                             # React source
+\`\`\`
+
+## ui-bundle.json Configuration
+
+\`\`\`json
+{
+    "outputDir": "dist",
+    "routing": {
+        "basePath": "/s/<BundleName>"
+    },
+    "headers": {
+        "Content-Security-Policy": "..."
+    }
+}
+\`\`\`
+
+## CSP Trusted Sites
+
+For any external domain accessed from the bundle, register a CSP Trusted Site in Setup:
+Setup → Security → CSP Trusted Sites → New
+
+Register both the base domain and the specific endpoint if they differ.
+`,
+    '.cursor/skills/afv-generating-ui-bundle-site/SKILL.md': `---
+name: afv-generating-ui-bundle-site
+description: "AFV Library: create a Digital Experience Site to host a React UI bundle with five required metadata components."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Generating UI Bundle Site
+
+> Source: forcedotcom/afv-library · generating-ui-bundle-site
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Creates and configures a Digital Experience Site to host React UI bundles.
+
+**Triggers when:** project contains \`uiBundles/*/src/\` directories requiring site infrastructure.
+
+## Five Properties to Resolve
+
+1. **siteName** — display name of the Experience Site
+2. **siteUrlPathPrefix** — URL path (e.g., \`/s/myapp\`)
+3. **appNamespace** — namespace prefix (empty string for no namespace)
+4. **appDevName** — developer name of the UI bundle
+5. **enableGuestAccess** — boolean (true for public sites)
+
+## Four Implementation Steps
+
+1. Resolve all five properties using fallback strategies (ask user if not determinable)
+2. Establish project directory structure with five metadata components
+3. Populate metadata using the prescribed templates
+4. Preserve non-templated default values (do not overwrite them)
+
+## Metadata Components Required
+
+- \`ExperienceBundle\` — the site container
+- \`Network\` — the site configuration
+- \`NavigationMenu\` — site navigation
+- \`ConnectedApp\` (if OAuth required)
+- \`CustomSite\` — site branding and settings
+
+## Pre-Deployment Verification
+
+- [ ] All five properties resolved
+- [ ] Directory structure matches SFDX project layout
+- [ ] Non-templated defaults preserved
+- [ ] Guest access setting matches intended audience
+`,
+    '.cursor/skills/afv-implementing-agentforce-conversation-client/SKILL.md': `---
+name: afv-implementing-agentforce-conversation-client
+description: "AFV Library: integrate AgentforceConversationClient into React UI bundles — never create custom chat widgets."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Implementing Agentforce Conversation Client
+
+> Source: forcedotcom/afv-library · implementing-ui-bundle-agentforce-conversation-client
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Integrates the \`<AgentforceConversationClient />\` component into React UI bundle applications.
+
+## THE ONE RULE
+
+**NEVER create a custom agent, chatbot, or chat widget component.** Always use \`AgentforceConversationClient\` from \`@salesforce/agentforce-conversation-client\`.
+
+## Prerequisites
+
+- Cookie settings configured for the Experience Site
+- Trusted domains registered for Agentforce endpoints
+- Agent created and activated in the org
+
+## Key Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| \`agentId\` | string (required) | The Agentforce agent ID |
+| \`inline\` | boolean | Render inline vs floating widget |
+| \`width\` | string | Widget width (e.g., \`'400px'\`) |
+| \`height\` | string | Widget height |
+| \`headerEnabled\` | boolean | Show/hide header bar |
+| \`styleTokens\` | object | ALL styling via this prop |
+
+## Styling Rule
+
+ALL styling customisation must go through the \`styleTokens\` prop. The prop accepts tokens for Container, Header, Welcome Block, Messages, Input, and Error Block sections.
+
+Never apply CSS directly to the component or its shadow DOM.
+`,
+    '.cursor/skills/afv-implementing-file-upload/SKILL.md': `---
+name: afv-implementing-file-upload
+description: "AFV Library: programmatic file upload API for UI bundles with basic, immediate-linking, and deferred-linking patterns."
+license: MIT
+compatibility: claude-code cursor windsurf
+allowed-tools: Bash Read Write Edit Glob Grep
+---
+
+# AFV Library — Implementing UI Bundle File Upload
+
+> Source: forcedotcom/afv-library · implementing-ui-bundle-file-upload
+> Install full library: \`npx skills add forcedotcom/afv-library\`
+
+Programmatic file upload API for React UI bundle applications.
+
+## Key Fact
+
+The package exports APIs only — NOT React components. You must build the custom upload UI yourself.
+
+## Three Upload Patterns
+
+**Pattern 1 — Basic Upload** (returns contentBodyId)
+\`\`\`ts
+import { upload } from '@salesforce/ui-bundle-file-upload';
+const { contentBodyId } = await upload({ file, fileName });
+\`\`\`
+
+**Pattern 2 — Immediate Linking** (upload + attach to existing record)
+\`\`\`ts
+import { upload, createContentDocumentLink } from '@salesforce/ui-bundle-file-upload';
+const { contentBodyId } = await upload({ file, fileName });
+await createContentDocumentLink({ contentBodyId, linkedEntityId: recordId });
+\`\`\`
+
+**Pattern 3 — Deferred Linking** (upload first, create record, then link)
+\`\`\`ts
+const { contentBodyId } = await upload({ file, fileName });
+const recordId = await createRecord({ ... });
+await createContentDocumentLink({ contentBodyId, linkedEntityId: recordId });
+\`\`\`
+
+## Progress Tracking
+
+\`\`\`ts
+await upload({
+    file,
+    fileName,
+    onProgress: (percent: number) => setProgress(percent)
+});
+\`\`\`
 `,
     // ─── Claude commands ─────────────────────────────────────────────────────────
     '.claude/commands/review-security.md': `# /review-security
@@ -1761,50 +3938,6 @@ This is supported in Claude Code Max plan. See Claude Code documentation for set
 
 See \`docs/mcp-usage.md\`. Save the MCP config as \`.mcp.json\` for Claude Code to use.
 `,
-    'docs/jags-skills.md': `# Jag's Salesforce Skills
-
-> Generated by AI-Kit for Salesforce.
-
-## What Are Jag's Salesforce Skills?
-
-Jag's Salesforce Skills are a community-maintained collection of reusable Cursor skill packs for Salesforce development. They provide domain-specific Salesforce guidance that Cursor can load when relevant — helping AI tools give better, more accurate Salesforce advice.
-
-Skills can be installed at:
-- **Project level:** \`.cursor/skills/\` — shared by everyone on the project
-- **User level:** \`~/.cursor/skills/\` — personal skills on your machine
-
-## How AI-Kit Skill Templates Relate to Jag's Skills
-
-AI-Kit for Salesforce creates **local project-level skill templates** under \`.cursor/skills/\`. These are:
-
-- Inspired by Salesforce best practices
-- Formatted to be compatible with the Cursor skills workflow
-- Safe to use offline without any external dependencies
-- Clearly labelled as AI-Kit templates, not official Jag files
-
-They are **not** Jag's official skill files. They are a practical starting point your team can use immediately.
-
-## Optional: Installing Jag's Actual Skills
-
-If your team wants to install Jag's actual Salesforce skills in the future, the command is:
-
-\`\`\`bash
-# TODO: Install Jag's Salesforce skills (review before running)
-# npx skills add Jaganpro/sf-skills
-\`\`\`
-
-**Before running this:**
-- Review the skill content at the source repository.
-- Ensure your team is comfortable with the content in enterprise/customer projects.
-- Pin the version where possible to avoid unexpected updates.
-
-> AI-Kit for Salesforce does not automatically install external skills in the MVP. Teams should review external skills before adding them to customer or enterprise projects.
-
-## See Also
-
-- \`docs/skills-ecosystem.md\` — Full skills strategy including Jag's skills and Salesforce AFV Library.
-- \`docs/afv-library.md\` — Salesforce's official curated agent skills library.
-`,
     'docs/afv-library.md': `# Salesforce AFV Library
 
 > Generated by AI-Kit for Salesforce.
@@ -1888,58 +4021,47 @@ For Agentforce projects, AFV Library is especially recommended.
 
 ## Overview
 
-AI-Kit for Salesforce supports three complementary approaches to Salesforce AI skills:
+AI-Kit for Salesforce supports two complementary approaches to Salesforce AI skills:
 
-1. **AI-Kit Local Salesforce Skill Templates** — bundled, offline, immediate
-2. **Jag's Salesforce Skills** — community-maintained Cursor skill packs
-3. **Salesforce AFV Library** — Salesforce's curated official agent skills
+1. **SF AI Toolkit Skill Templates** — 11 architect-level skills, bundled, offline, immediate
+2. **Salesforce AFV Library** — 29 Salesforce-official curated agent skills
 
 Each serves a different need. This guide explains when to use each.
 
 ---
 
-## 1. AI-Kit Local Salesforce Skill Templates
+## 1. SF AI Toolkit Skill Templates
 
-**What:** Local skill templates generated by AI-Kit for Salesforce under \`.cursor/skills/\`.
+**What:** Local skill templates generated by SF AI Toolkit under \`.cursor/skills/\`.
 
 **Skills included:**
-- \`salesforce-apex\` — Apex coding standards and checklist
-- \`salesforce-lwc\` — LWC coding standards and checklist
-- \`salesforce-flow\` — Flow review and documentation
-- \`salesforce-security-review\` — Security review checklist
-- \`salesforce-agentforce\` — Agentforce and invocable actions
-- \`salesforce-data-cloud\` — Data Cloud integrations
+- \`salesforce-apex\` — Apex coding standards: Service/Selector/Domain, bulkification, USER_MODE
+- \`salesforce-lwc\` — LWC standards: wire adapters, reactivity, accessibility, SLDS2
+- \`salesforce-flow\` — Flow design: triggers, bulkification, fault handling, best practices
+- \`salesforce-security-review\` — Security review: CRUD/FLS, SOQL injection, permissions
+- \`salesforce-agentforce\` — Agentforce: Atlas Reasoning Engine, topics, actions, testing
+- \`salesforce-data-cloud\` — Data Cloud: ingestion, segmentation, activation, privacy
+- \`salesforce-apex-tests\` — Test patterns: @IsTest, mocks, governors, coverage
+- \`salesforce-deployment\` — Deployment safety: validate, destructive changes, rollback
+- \`salesforce-pr-review\` — PR review checklist: security, coverage, API versions
+- \`salesforce-commit-message\` — Conventional Commits for Salesforce DX
+- \`salesforce-permissions\` — Permission sets, profiles, security model
 
-**When to use:** Always — these are safe, bundled, and available offline. A good starting point for any Salesforce DX project.
+**When to use:** Always — these are safe, bundled, and available offline.
 
 **Install:** Auto-created by \`ai-kit-sf init\` or \`ai-kit-sf add-cursor\`.
 
 ---
 
-## 2. Jag's Salesforce Skills
+## 2. Salesforce AFV Library
 
-**What:** Community-maintained reusable Cursor skill packs for Salesforce development.
-
-**When to use:** When your team wants additional community-maintained Salesforce guidance beyond the AI-Kit templates.
-
-**Optional install (review before running):**
-
-\`\`\`bash
-# TODO: Review source before installing
-# npx skills add Jaganpro/sf-skills
-\`\`\`
-
-See \`docs/jags-skills.md\` for more details.
-
----
-
-## 3. Salesforce AFV Library
-
-**What:** Salesforce's curated collection of agent skills for building applications — optimized for Agentforce Vibes.
+**What:** Salesforce's curated collection of 29 agent skills — optimized for Agentforce Vibes development.
 
 **Repository:** [https://github.com/forcedotcom/afv-library](https://github.com/forcedotcom/afv-library)
 
-**When to use:** Recommended for Agentforce projects. Useful for any project that wants Salesforce-official guidance patterns.
+**Skills included (29):** generating-apex, generating-apex-test, generating-flow, generating-custom-object, generating-custom-field, generating-permission-set, developing-agentforce, testing-agentforce, observing-agentforce, generating-validation-rule, generating-flexipage, generating-lightning-app, uplifting-to-slds2, switching-org, building-ui-bundle-app, building-ui-bundle-frontend, deploying-ui-bundle, using-ui-bundle-salesforce-data, creating-b2b-commerce-store, generating-custom-application, generating-custom-lightning-type, generating-custom-tab, generating-list-view, searching-media, generating-ui-bundle-features, generating-ui-bundle-metadata, generating-ui-bundle-site, implementing-agentforce-conversation-client, implementing-file-upload
+
+**When to use:** Recommended for Agentforce and UI Bundle projects. Covers advanced Salesforce-official patterns.
 
 **Optional install (review before running):**
 
@@ -1948,14 +4070,20 @@ See \`docs/jags-skills.md\` for more details.
 npx skills add forcedotcom/afv-library
 \`\`\`
 
+Or use AI-Kit to add bundled AFV skill templates:
+
+\`\`\`bash
+ai-kit-sf add-afv-skills
+\`\`\`
+
 See \`docs/afv-library.md\` for more details.
 
 ---
 
 ## Recommended Enterprise Approach
 
-1. **Start with AI-Kit local templates** — safe, offline, immediately useful.
-2. **Review Jag's skills and AFV Library** before installing — read the source.
+1. **Start with SF AI Toolkit templates** — safe, offline, immediately useful.
+2. **Review AFV Library** before installing — read the source at GitHub.
 3. **Pin versions** where possible to avoid unexpected updates.
 4. **Commit project-level skills to Git** only after review.
 5. **Avoid auto-updating skills** in sensitive customer or enterprise projects without approval.
@@ -1964,14 +4092,15 @@ See \`docs/afv-library.md\` for more details.
 
 ## Summary Table
 
-| | AI-Kit Templates | Jag's Skills | AFV Library |
-|--|--|--|--|
-| Source | Bundled | Community | Salesforce |
-| Offline | Yes | No | No |
-| Auto-install | Yes | No (MVP) | No (MVP) |
-| Agentforce focus | Partial | General | Strong |
-| Enterprise review | Not needed | Recommended | Recommended |
-| Install command | auto | \`npx skills add Jaganpro/sf-skills\` | \`npx skills add forcedotcom/afv-library\` |
+| | SF AI Toolkit Templates | AFV Library |
+|--|--|--|
+| Source | Bundled with AI-Kit | Salesforce GitHub |
+| Skills | 11 architect-level | 29 official |
+| Offline | Yes | No (install required) |
+| Auto-install | Yes | Optional |
+| Agentforce focus | Partial | Strong |
+| Enterprise review | Not needed | Recommended |
+| Install | \`ai-kit-sf init\` | \`npx skills add forcedotcom/afv-library\` |
 `,
     // ─── Task management ─────────────────────────────────────────────────────────
     'tasks/todo.md': `# Task Tracker
@@ -1979,7 +4108,7 @@ See \`docs/afv-library.md\` for more details.
 > This file is managed by Claude Code following the workflow standards in CLAUDE.md.
 > Use it to plan, track, and review work on this Salesforce DX project.
 
-<!-- AI-KIT-SALESFORCE:START -->
+<!-- SF-AI-TOOLKIT:START -->
 
 ## How to use this file
 
@@ -2007,14 +4136,14 @@ As work progresses, mark items complete. At the end of each task, add a Review s
 - **Follow-up:** remaining items
 \`\`\`
 
-<!-- AI-KIT-SALESFORCE:END -->
+<!-- SF-AI-TOOLKIT:END -->
 `,
     'tasks/lessons.md': `# Lessons Learned
 
 > Claude Code updates this file after any correction or failed approach.
 > Review relevant lessons at the start of each new task.
 
-<!-- AI-KIT-SALESFORCE:START -->
+<!-- SF-AI-TOOLKIT:START -->
 
 ## How to use this file
 
@@ -2040,7 +4169,7 @@ Ruthlessly iterate — if a mistake repeats, strengthen the rule.
 - **Root cause:** Wrote to file without checking if it already existed.
 - **New rule:** Always check for existing files before writing. Use safe merge mode with marker blocks. Create backups before modification.
 
-<!-- AI-KIT-SALESFORCE:END -->
+<!-- SF-AI-TOOLKIT:END -->
 `,
     // ─── Cursor project rule ──────────────────────────────────────────────────
     '.cursor/rules/project.mdc': `---
@@ -2190,6 +4319,351 @@ A task is only done when:
 - [ ] \`tasks/lessons.md\` is updated if any correction occurred
 - [ ] No credentials or secrets are exposed
 - [ ] Security reviewed where relevant
+`,
+    'AI_INSTRUCTIONS.md': `# AI_INSTRUCTIONS.md
+
+Canonical cross-tool AI policy file for this repository.
+
+This file is intended for any AI coding assistant, including Cursor, Claude Code,
+Codex CLI, Antigravity, and other MCP-capable agents.
+
+## Core Principles
+
+1. Keep changes minimal and reversible.
+2. Never overwrite existing files without explicit approval.
+3. Never expose secrets or credentials in code, docs, commits, or logs.
+4. Validate before done (tests/build/lint where relevant).
+5. Confirm target org and environment before deploy-related actions.
+
+## Salesforce Safety Rules
+
+- Use \`sf\` CLI (not deprecated \`sfdx\`) when possible.
+- No SOQL or DML inside loops.
+- Use \`with sharing\` unless an exception is documented.
+- Enforce CRUD/FLS for user-context data access.
+- Prefer Permission Sets over Profiles.
+- Never run destructive changes on production without explicit confirmation.
+
+## MCP Usage Rules
+
+- Prefer MCP for org reads and metadata inspection.
+- Treat production orgs as read-only by default.
+- Ask before any data mutation, deployment, or destructive operation.
+
+## Output Quality Rules
+
+- Explain what changed and why.
+- Call out any residual risks.
+- Include verification evidence (commands/tests run).
+- If verification is skipped, explicitly state why and what should be run.
+`,
+    'docs/codex-setup.md': `# Codex Setup for Salesforce DX
+
+This project supports Codex-style agents by using shared repository instructions
+and Salesforce-specific guardrails.
+
+## Recommended Files
+
+- \`AI_INSTRUCTIONS.md\` (cross-tool canonical policy)
+- \`AGENTS.md\` (project workflow and org safety context)
+- \`docs/mcp-usage.md\` (MCP configuration and usage model)
+- \`.cursor/rules/\` and \`.cursor/skills/\` (reusable Salesforce constraints)
+
+## Usage Pattern
+
+1. Start with a scan/assessment task.
+2. Confirm target org alias before any deploy or mutation task.
+3. Use MCP for org operations whenever possible.
+4. Require tests/validation before completion.
+
+## Safety Checklist
+
+- [ ] No secrets exposed
+- [ ] No destructive change without explicit approval
+- [ ] No production deploy without confirmation
+- [ ] Apex/LWC standards respected
+`,
+    'docs/antigravity-setup.md': `# Antigravity Setup for Salesforce DX
+
+This project is compatible with Antigravity-style agent workflows through
+shared AI policy files and MCP-first Salesforce operations.
+
+## Recommended Integration
+
+- Load \`AI_INSTRUCTIONS.md\` as the primary instruction file.
+- Load \`AGENTS.md\` for project and workflow context.
+- Follow \`docs/mcp-usage.md\` for safe org interaction patterns.
+
+## Operational Guardrails
+
+- Confirm org alias before metadata or data operations.
+- Treat production as read-only unless explicitly approved.
+- Prefer non-destructive previews before deploy commands.
+- Keep changes minimal and provide verification evidence.
+
+## Team Standardization
+
+Use drift checks to keep local AI setup aligned with team expectations and
+reduce variation in AI-generated code quality.
+`,
+    'sf-ai-toolkit.config.json': `{
+  "quality": {
+    "pmd": {
+      "enabled": false,
+      "runCommand": "pmd check -d \\"force-app/main/default/classes,force-app/main/default/triggers\\" -R category/apex/bestpractices.xml"
+    }
+  },
+  "git": {
+    "commitMessage": {
+      "enabled": true,
+      "pattern": "^(feat|fix|docs|chore|refactor|test|perf)(\\\\([a-z0-9_-]+\\\\))?: .{1,72}$",
+      "helpText": "Use Conventional Commit format, e.g. feat(apex): add account service validation"
+    }
+  }
+}
+`,
+    '.githooks/pre-commit': `#!/usr/bin/env sh
+set -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+CONFIG_PATH="$REPO_ROOT/sf-ai-toolkit.config.json"
+
+if [ ! -f "$CONFIG_PATH" ]; then
+  exit 0
+fi
+
+if command -v node >/dev/null 2>&1; then
+  PMD_ENABLED="$(node -e "const fs=require('fs');const p=process.argv[1];const c=JSON.parse(fs.readFileSync(p,'utf8'));process.stdout.write(String(Boolean(c.quality?.pmd?.enabled)));\" \"$CONFIG_PATH\" 2>/dev/null || echo false)"
+  PMD_COMMAND="$(node -e "const fs=require('fs');const p=process.argv[1];const c=JSON.parse(fs.readFileSync(p,'utf8'));process.stdout.write(String(c.quality?.pmd?.runCommand||''));\" \"$CONFIG_PATH\" 2>/dev/null || true)"
+else
+  PMD_ENABLED="false"
+  PMD_COMMAND=""
+fi
+
+if [ "$PMD_ENABLED" = "true" ] && [ -n "$PMD_COMMAND" ]; then
+  echo "[sf-ai-toolkit] Running PMD check..."
+  sh -c "$PMD_COMMAND"
+fi
+
+exit 0
+`,
+    '.githooks/commit-msg': `#!/usr/bin/env sh
+set -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+CONFIG_PATH="$REPO_ROOT/sf-ai-toolkit.config.json"
+MSG_FILE="$1"
+
+if [ ! -f "$CONFIG_PATH" ]; then
+  exit 0
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  exit 0
+fi
+
+node - "$CONFIG_PATH" "$MSG_FILE" <<'NODE'
+const fs = require('fs');
+const [, , configPath, msgPath] = process.argv;
+const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+const enabled = Boolean(cfg.git?.commitMessage?.enabled);
+if (!enabled) process.exit(0);
+const pattern = String(cfg.git?.commitMessage?.pattern || '');
+if (!pattern) process.exit(0);
+const help = String(cfg.git?.commitMessage?.helpText || 'Commit message does not match configured pattern.');
+const msg = fs.readFileSync(msgPath, 'utf8').trim();
+let re;
+try {
+  re = new RegExp(pattern);
+} catch {
+  process.stderr.write('[sf-ai-toolkit] Invalid commit message regex in sf-ai-toolkit.config.json\\n');
+  process.exit(1);
+}
+if (!re.test(msg)) {
+  process.stderr.write('[sf-ai-toolkit] Commit message policy failed.\\n');
+  process.stderr.write(\`\${help}\\n\`);
+  process.stderr.write(\`Message: "\${msg}"\\n\`);
+  process.exit(1);
+}
+NODE
+
+exit 0
+`,
+    // ─── Windsurf ─────────────────────────────────────────────────────────────
+    '.windsurfrules': `# Windsurf Rules for Salesforce DX
+
+> Generated by SF AI Toolkit. Read AI_INSTRUCTIONS.md for the canonical cross-tool AI policy.
+
+You are working on a Salesforce DX project. Follow these rules strictly.
+
+## Identity
+
+You are a senior Salesforce developer assistant. You understand Apex, LWC, Salesforce Flow, MCP-based org operations, and Salesforce security models.
+
+## Safety First
+
+- NEVER deploy to production without explicit user confirmation.
+- NEVER run destructive operations (delete fields, objects, components) without a preview and approval.
+- NEVER expose secrets, credentials, or org usernames in generated content.
+- Treat production orgs as read-only unless the user explicitly requests a production change.
+- Always confirm the target org alias before any sf deploy or sf apex run command.
+
+## Salesforce Development Standards
+
+### Apex
+- Use Service/Selector/Domain pattern for business logic separation.
+- All DML and SOQL must be bulkified (no DML/SOQL inside loops).
+- Enforce CRUD/FLS with \`WITH USER_MODE\` on all SOQL queries.
+- Minimum 85% test coverage. Use @IsTest with realistic data, not mocked shortcuts.
+- Never use \`SeeAllData=true\` in test classes.
+
+### Lightning Web Components (LWC)
+- Follow SLDS 2 design tokens and accessibility standards.
+- Use \`@wire\` for read operations, \`@AuraEnabled(cacheable=true)\` for Apex wire methods.
+- Handle loading, error, and empty states explicitly.
+- LWC naming: camelCase for JS, kebab-case for HTML references.
+
+### Salesforce Flow
+- Prefer Flow for declarative automation. Use Apex only when Flow can't meet requirements.
+- Bulkify all Flow loops — use collections, not record-by-record operations.
+- Always add fault paths on every DML element.
+- Document Flow with a Description on every element.
+
+## MCP Usage
+
+When MCP tools are available, prefer them over CLI commands for org operations:
+- Use MCP for SOQL queries, metadata describe, and running Apex.
+- Use CLI (\`sf\`) for deploy/validate, test runs, and org management.
+
+See \`docs/mcp-usage.md\` for full MCP setup and usage guide.
+
+## Skills
+
+Skill templates are in \`.cursor/skills/\`. Reference them for domain-specific guidance:
+- \`salesforce-apex\` — Apex patterns and governor limit guidance
+- \`salesforce-lwc\` — LWC standards and SLDS 2
+- \`salesforce-agentforce\` — Agentforce and Atlas Reasoning Engine
+- \`salesforce-security-review\` — Security and permissions checklist
+
+## Task Workflow
+
+1. Read \`tasks/todo.md\` before starting work.
+2. Confirm the org alias before any deployment.
+3. Validate first (\`sf project deploy validate\`) before a real deploy.
+4. Update \`tasks/todo.md\` and \`tasks/lessons.md\` after completing work.
+`,
+    // ─── GitHub Copilot ───────────────────────────────────────────────────────
+    '.github/copilot-instructions.md': `# GitHub Copilot Instructions for Salesforce DX
+
+> Generated by SF AI Toolkit. See AI_INSTRUCTIONS.md for the full cross-tool AI policy.
+
+You are working on a Salesforce DX project. Follow these instructions for all Copilot suggestions in this repository.
+
+## Salesforce Development Standards
+
+### Apex
+- Apply Service/Selector/Domain layered architecture. Services own business logic; Selectors own SOQL; Domains own DML trigger patterns.
+- All SOQL and DML must be outside loops (bulkification is mandatory).
+- Use \`WITH USER_MODE\` on all SOQL queries to enforce CRUD/FLS automatically.
+- Write @IsTest classes with \`@TestSetup\`, realistic test data, and no SeeAllData=true.
+- Minimum 85% test coverage. Cover both happy path and edge cases (empty collections, large datasets, exception handling).
+
+### Lightning Web Components (LWC)
+- Use \`@wire\` adapters for Salesforce data access.
+- Mark \`@AuraEnabled\` methods as \`cacheable=true\` for wire methods; use non-cacheable for mutations.
+- Apply SLDS 2 design tokens. Do not hardcode colors or spacing.
+- Handle loading, error, and empty states in every component.
+
+### Salesforce Flow
+- Use Flow for declarative automation. Escalate to Apex only when Flow is insufficient.
+- All Flow loops must use collections to avoid record-by-record DML.
+- Add a Fault element after every DML operation.
+
+## Safety Guidelines
+
+- Do not suggest deploying to production without a validate-first step.
+- Do not suggest destructive metadata changes without showing a preview.
+- Do not generate code that stores credentials, tokens, or PII in Apex variables or debug logs.
+- Always include null-checks and empty-list guards in Apex collections.
+
+## Code Quality
+
+- Follow Apex naming conventions: \`PascalCase\` for classes, \`camelCase\` for methods/variables.
+- LWC file names: camelCase for JS, kebab-case as HTML component tag names.
+- No inline SOQL or DML in for-loops, triggers without handler classes, or \`System.debug\` with sensitive data.
+
+## MCP and Org Operations
+
+- Prefer Salesforce MCP tools for SOQL and metadata operations when available.
+- Use \`sf project deploy validate\` before \`sf project deploy start\`.
+- See \`docs/mcp-usage.md\` for org-safe MCP configuration.
+`,
+    // ─── Agentforce Vibes ─────────────────────────────────────────────────────
+    'docs/agentforce-vibes-setup.md': `# Agentforce Vibes Setup
+
+> Generated by SF AI Toolkit.
+
+Agentforce Vibes is Salesforce's AI-native development workflow where AI agents assist with the full development lifecycle — from writing Apex and LWC to deploying metadata and running tests.
+
+## What Is Agentforce Vibes?
+
+Agentforce Vibes combines:
+- **Salesforce AFV Library** — Salesforce-official curated skill templates for AI tools
+- **Cursor/Claude Code/Windsurf** — AI-native IDEs that load and apply skills
+- **MCP (Salesforce DX)** — model context protocol for safe org interaction
+- **agentskills.io specification** — standardized SKILL.md format for reusable AI skills
+
+This project is pre-configured for Agentforce Vibes workflows.
+
+## What SF AI Toolkit Sets Up
+
+| Component | Where | Purpose |
+|-----------|-------|---------|
+| 11 architect skills | \`.cursor/skills/salesforce-*\` | Senior-level Salesforce guidance |
+| 29 AFV skills | \`.cursor/skills/afv-*\` | Official Salesforce patterns |
+| Cursor rules | \`.cursor/rules/\` | Workflow enforcement |
+| Claude agents | \`.claude/agents/\` | Specialized sub-agents |
+| Windsurf rules | \`.windsurfrules\` | Windsurf-native guardrails |
+| Copilot instructions | \`.github/copilot-instructions.md\` | GitHub Copilot guidance |
+| MCP config | \`.mcp.json\` / \`.cursor/mcp.json\` | Org-safe tool calls |
+
+## AFV Library Skills (Official Salesforce)
+
+Install the full AFV Library alongside SF AI Toolkit templates:
+
+\`\`\`bash
+# Review first: https://github.com/forcedotcom/afv-library
+npx skills add forcedotcom/afv-library
+\`\`\`
+
+Or use the bundled AFV-compatible templates already installed by SF AI Toolkit.
+
+## Recommended AI Tool Stack
+
+| AI Tool | Config File | Notes |
+|---------|-------------|-------|
+| Cursor | \`.cursor/rules/\` + \`.cursor/skills/\` | Primary IDE for Agentforce Vibes |
+| Claude Code | \`CLAUDE.md\` + \`.claude/\` | Agent orchestration and sub-agents |
+| Windsurf | \`.windsurfrules\` | Rule-file native support |
+| GitHub Copilot | \`.github/copilot-instructions.md\` | Repo-level instructions |
+| VS Code (extension) | via SF AI Toolkit extension | Readiness scan and commands |
+| Any MCP-capable tool | \`.mcp.json\` | Standardized org access |
+
+## Agentforce Development with AFV Skills
+
+For building Agentforce agents and topics, use the skill references:
+
+- \`@afv-developing-agentforce\` — Topic and action design, Atlas Reasoning Engine
+- \`@afv-testing-agentforce\` — Agentforce testing strategy
+- \`@afv-observing-agentforce\` — Monitoring and debugging agents
+- \`@salesforce-agentforce\` — Invocable actions and agent integration
+
+## Getting Started
+
+1. Run \`ai-kit-sf scan\` to check your project readiness.
+2. Run \`ai-kit-sf init\` to apply the full setup.
+3. Run \`ai-kit-sf bootstrap-mcp\` to configure your org MCP connection.
+4. Reference skills in Cursor/Claude by typing \`@skill-name\` in the chat.
 `,
 };
 function getTemplate(key) {

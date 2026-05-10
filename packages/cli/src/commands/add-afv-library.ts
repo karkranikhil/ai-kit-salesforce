@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import * as path from 'path';
-import { planSetup, applySetup } from '@ai-kit-salesforce/core';
+import { planSetup, applySetup } from '@sf-ai-toolkit/core';
 import * as ui from '../ui';
 
 const AFV_FILES = ['docs/afv-library.md', 'docs/skills-ecosystem.md'];

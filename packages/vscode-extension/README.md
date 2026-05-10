@@ -1,8 +1,8 @@
-# AI-Kit for Salesforce
+# SF AI Toolkit
 
 **Make every Salesforce DX project AI-ready in minutes.**
 
-AI-Kit for Salesforce is a VS Code and Cursor extension that scaffolds everything an AI coding assistant needs to work safely and effectively inside a Salesforce DX project. It generates Cursor rules, Claude Code configuration, Salesforce DX MCP setup, real-time Apex and LWC diagnostics, Agentforce context detection, team config sync, and more — without overwriting any existing files.
+SF AI Toolkit is a VS Code and Cursor extension that scaffolds everything an AI coding assistant needs to work safely and effectively inside a Salesforce DX project. It generates Cursor rules, Claude Code configuration, cross-tool AI policy docs for Codex/Antigravity-style workflows, Salesforce DX MCP setup, real-time Apex and LWC diagnostics, Agentforce context detection, team config sync, and more — without overwriting existing files.
 
 ---
 
@@ -10,7 +10,7 @@ AI-Kit for Salesforce is a VS Code and Cursor extension that scaffolds everythin
 
 Every Salesforce developer using Cursor or Claude Code has to manually configure MCP, write Cursor rules, set up CLAUDE.md, add skills, and figure out guardrails from scratch for every project. There is no standard. Every project ends up different.
 
-AI-Kit for Salesforce solves this with one command. Open a Salesforce DX project, run the setup, and your project has everything configured correctly — consistent across every developer and every project in your team.
+SF AI Toolkit solves this with one command. Open a Salesforce DX project, run the setup, and your project has everything configured correctly — consistent across every developer and every project in your team.
 
 ---
 
@@ -20,7 +20,7 @@ Install from the VS Code Marketplace:
 
 1. Open VS Code or Cursor
 2. Go to the Extensions panel (`Cmd+Shift+X` / `Ctrl+Shift+X`)
-3. Search for **AI-Kit for Salesforce**
+3. Search for **SF AI Toolkit**
 4. Click **Install**
 
 The extension activates automatically when you open a folder containing `sfdx-project.json`.
@@ -34,7 +34,7 @@ The extension activates automatically when you open a folder containing `sfdx-pr
 Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run:
 
 ```
-AI-Kit: Scan Salesforce Project
+SF AI Toolkit: Scan Salesforce Project
 ```
 
 This scans your project and opens a readiness report showing your AI readiness score (0–100), what is missing, and what is already configured. The score also appears in the status bar at the bottom of the window.
@@ -44,20 +44,20 @@ This scans your project and opens a readiness report showing your AI readiness s
 Run:
 
 ```
-AI-Kit: Apply Recommended Setup
+SF AI Toolkit: Apply Recommended Setup
 ```
 
-Select a preset (start with `core` for any standard Salesforce DX project) and confirm. AI-Kit creates all missing files. Existing files are never overwritten.
+Select a preset (start with `core` for any standard Salesforce DX project) and confirm. SF AI Toolkit creates all missing files. Existing files are never overwritten.
 
 ### Step 3 — Configure MCP for your org
 
 Run:
 
 ```
-AI-Kit: Bootstrap MCP Config
+SF AI Toolkit: Bootstrap MCP Config
 ```
 
-Enter your Salesforce org alias when prompted. AI-Kit generates:
+Enter your Salesforce org alias when prompted. SF AI Toolkit generates:
 
 - `.cursor/mcp.json` — MCP configuration for Cursor
 - `.mcp.json` — MCP configuration for Claude Code
@@ -68,15 +68,24 @@ Both files use the correct `args[]` array format. Restart Cursor or VS Code to a
 
 Open any `.cls`, `.trigger`, or LWC `.js`/`.html` file. Inline diagnostics appear automatically as red and yellow underlines for detected anti-patterns. Hover over any underline for an explanation, fix suggestion, and link to the relevant Salesforce documentation.
 
+## 90-Second Demo Flow
+
+1. Run **SF AI Toolkit: Scan Salesforce Project**.
+2. Run **SF AI Toolkit: Apply Recommended Setup** with `core`.
+3. Run **SF AI Toolkit: Bootstrap MCP Config**.
+4. Open an Apex or LWC file to show live diagnostics.
+5. Run **SF AI Toolkit: Check Template Drift** to show team consistency workflows.
+
 ---
 
 ## What Gets Created
 
-Running **AI-Kit: Apply Recommended Setup** with the `core` preset creates the following files if they do not already exist:
+Running **SF AI Toolkit: Apply Recommended Setup** with the `core` preset creates the following files if they do not already exist:
 
 ```
 AGENTS.md                              AI tool usage guide for the project
 CLAUDE.md                              Claude Code rules and workflow orchestration
+AI_INSTRUCTIONS.md                     Canonical cross-tool AI policy file
 tasks/todo.md                          AI task tracker
 tasks/lessons.md                       Lessons learned log
 
@@ -89,17 +98,24 @@ tasks/lessons.md                       Lessons learned log
     safety.mdc                         Security guardrails
 
 .cursor/skills/
-    salesforce-apex/SKILL.md
-    salesforce-lwc/SKILL.md
-    salesforce-flow/SKILL.md
-    salesforce-security-review/SKILL.md
-    salesforce-agentforce/SKILL.md
-    salesforce-data-cloud/SKILL.md
+    11 SF AI Toolkit Salesforce skills
+    29 AFV-compatible skills
+    (40 total)
 
 .claude/commands/                      6 slash commands for common workflows
 .claude/agents/                        5 sub-agent definitions
-docs/                                  9 reference documentation files
+docs/                                  11 reference documentation files (includes Codex + Antigravity setup)
 ```
+
+## AI Tool Compatibility
+
+| AI Tool | How Extension Setup Supports It |
+|---------|----------------------------------|
+| Cursor | `.cursor/rules`, `.cursor/skills`, MCP bootstrap helpers |
+| Claude Code | `CLAUDE.md`, `.claude/commands`, `.claude/agents` |
+| Codex-style agents | `AI_INSTRUCTIONS.md` + shared AI policy docs |
+| Antigravity-style agents | Shared policy docs + drift/team sync workflows |
+| Any MCP-capable assistant | Salesforce DX MCP guardrails and setup docs |
 
 ---
 
@@ -158,21 +174,22 @@ Hover over any underlined code to see the rule title, a detailed explanation, a 
 
 ## Commands
 
-Open the Command Palette (`Cmd+Shift+P`) and search for **AI-Kit**:
+Open the Command Palette (`Cmd+Shift+P`) and search for **SF AI Toolkit**:
 
 | Command | Description |
 |---------|-------------|
-| AI-Kit: Scan Salesforce Project | Scan the project and open the readiness report |
-| AI-Kit: Apply Recommended Setup | Scaffold all missing files for the selected preset |
-| AI-Kit: Bootstrap MCP Config | Generate MCP configuration for Cursor and Claude Code |
-| AI-Kit: Check Template Drift | Check whether your AI files are still aligned with best practices |
-| AI-Kit: Check Team Sync | Compare local files against your team config URL |
-| AI-Kit: Add Cursor Rules | Add `.cursor/rules/` files only |
-| AI-Kit: Add Cursor Skills | Add `.cursor/skills/` templates only |
-| AI-Kit: Add Claude Code Setup | Add `CLAUDE.md`, agents, and slash commands only |
-| AI-Kit: Add MCP Guardrails | Add MCP documentation and rule only |
-| AI-Kit: Add claude-mem Salesforce Mode | Generate `docs/claude-mem/salesforce-dx.json` |
-| AI-Kit: Insert Skill Reference | Browse installed skills and copy an `@mention` to clipboard |
+| SF AI Toolkit: Scan Salesforce Project | Scan the project and open the readiness report |
+| SF AI Toolkit: Apply Recommended Setup | Scaffold all missing files for the selected preset |
+| SF AI Toolkit: Bootstrap MCP Config | Generate MCP configuration for Cursor and Claude Code |
+| SF AI Toolkit: Check Template Drift | Check whether your AI files are still aligned with best practices |
+| SF AI Toolkit: Check Team Sync | Compare local files against your team config URL |
+| SF AI Toolkit: Add Cursor Rules | Add `.cursor/rules/` files only |
+| SF AI Toolkit: Add Cursor Skills | Add `.cursor/skills/` templates only |
+| SF AI Toolkit: Add Claude Code Setup | Add `CLAUDE.md`, agents, and slash commands only |
+| SF AI Toolkit: Add MCP Guardrails | Add MCP documentation and rule only |
+| SF AI Toolkit: Add Git Hooks | Add configurable `.githooks` + `sf-ai-toolkit.config.json` |
+| SF AI Toolkit: Add claude-mem Salesforce Mode | Generate `docs/claude-mem/salesforce-dx.json` |
+| SF AI Toolkit: Insert Skill Reference | Browse installed skills and copy an `@mention` to clipboard |
 
 ---
 
@@ -196,22 +213,22 @@ If your entire team uses Cursor on Salesforce DX projects, you can enforce a con
 
 ```json
 {
-  "ai-kit-salesforce.teamConfigUrl": "https://raw.githubusercontent.com/your-org/your-repo/main/ai-kit-team.json"
+  "sf-ai-toolkit.teamConfigUrl": "https://raw.githubusercontent.com/your-org/your-repo/main/ai-kit-team.json"
 }
 ```
 
-**Step 3** — AI-Kit checks automatically on workspace open. If any developer's project has drifted from the team standard, a notification appears with a link to a full drift report.
+**Step 3** — SF AI Toolkit checks automatically on workspace open. If any developer's project has drifted from the team standard, a notification appears with a link to a full drift report.
 
 ---
 
 ## Safety
 
-AI-Kit is safe to run on existing projects:
+SF AI Toolkit is safe to run on existing projects:
 
 | Behaviour | Detail |
 |-----------|--------|
 | Never overwrites files | Any file that already exists is skipped entirely |
-| Backup before modify | A timestamped backup is created in `.ai-kit-salesforce-backup/` before any file is changed |
+| Backup before modify | A timestamped backup is created in `.sf-ai-toolkit-backup/` before any file is changed |
 | Dry-run mode | Preview all planned changes before anything is written |
 | No credentials required | No org login, no tokens, no authentication |
 | No deployments | Never runs `sf project deploy` or any org-modifying command |
@@ -224,12 +241,12 @@ AI-Kit is safe to run on existing projects:
 All features are available via the companion CLI without installing the extension:
 
 ```bash
-npx @ai-kit-salesforce/cli scan
-npx @ai-kit-salesforce/cli init --preset core --yes
-npx @ai-kit-salesforce/cli bootstrap-mcp
-npx @ai-kit-salesforce/cli deploy-preview
-npx @ai-kit-salesforce/cli agentforce-scan
-npx @ai-kit-salesforce/cli doctor
+npx @sf-ai-toolkit/cli scan
+npx @sf-ai-toolkit/cli init --preset core --yes
+npx @sf-ai-toolkit/cli bootstrap-mcp
+npx @sf-ai-toolkit/cli deploy-preview
+npx @sf-ai-toolkit/cli agentforce-scan
+npx @sf-ai-toolkit/cli doctor
 ```
 
 ---

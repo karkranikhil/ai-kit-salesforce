@@ -76,11 +76,11 @@ let tmpDir;
         const result = await (0, scanner_1.scanProject)(tmpDir);
         (0, vitest_1.expect)(result.hasCursorRules).toBe(true);
     });
-    (0, vitest_1.it)('detects cursor skills directory and marks hasJagsSkills true', async () => {
+    (0, vitest_1.it)('detects cursor skills directory and marks hasAfvSkills true', async () => {
         await fs.ensureDir(path.join(tmpDir, '.cursor', 'skills'));
         const result = await (0, scanner_1.scanProject)(tmpDir);
         (0, vitest_1.expect)(result.hasCursorSkills).toBe(true);
-        (0, vitest_1.expect)(result.hasJagsSkills).toBe(true);
+        (0, vitest_1.expect)(result.hasAfvSkills).toBe(true);
     });
     (0, vitest_1.it)('calculates readiness score 0 for empty project', async () => {
         const result = await (0, scanner_1.scanProject)(tmpDir);

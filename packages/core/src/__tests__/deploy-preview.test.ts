@@ -123,9 +123,17 @@ describe('buildDeployPreview', () => {
     const result = await buildDeployPreview({ rootPath: tmpDir });
 
     expect(result.validationCommand).toContain('sf project deploy validate');
+    expect(result.validationCommand).toContain("'force-app'");
     expect(result.validationCommand).toContain('RunLocalTests');
     expect(result.deployCommand).toContain('sf project deploy start');
+    expect(result.deployCommand).toContain("'force-app'");
     expect(result.deployCommand).toContain('RunLocalTests');
+  });
+
+  it('rejects unsafe sourceDir values', async () => {
+    await expect(buildDeployPreview({ rootPath: tmpDir, sourceDir: '../force-app' })).rejects.toThrow(
+      'Invalid sourceDir'
+    );
   });
 });
 
