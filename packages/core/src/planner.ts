@@ -101,6 +101,7 @@ const CORE_FILES = [
   'docs/afv-library.md',
   'docs/skills-ecosystem.md',
   'docs/agentforce-vibes-setup.md',
+  'docs/getting-started.md',
   '.windsurfrules',
   '.github/copilot-instructions.md',
 ];

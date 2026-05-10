@@ -4754,6 +4754,155 @@ For building Agentforce agents and topics, use the skill references:
 4. Reference skills in Cursor/Claude by typing \`@skill-name\` in the chat.
 `,
 
+  // ─── Getting Started ──────────────────────────────────────────────────────
+  'docs/getting-started.md': `# Getting Started with SF AI Toolkit
+
+This guide walks you through setting up SF AI Toolkit in a Salesforce DX project from scratch — from installation to using skills in your AI editor of choice.
+
+---
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- A Salesforce DX project with \`sfdx-project.json\` at the root
+- Node.js 18 or later (\`node --version\` to check)
+- VS Code, Cursor, or Windsurf (or a terminal if using the CLI only)
+- Salesforce CLI (\`sf --version\` to check) — needed for MCP and deploy commands
+
+---
+
+## Step 1 — Install
+
+### Option A: VS Code / Cursor Extension (recommended)
+
+1. Open VS Code or Cursor
+2. Go to Extensions (\`Cmd+Shift+X\` / \`Ctrl+Shift+X\`)
+3. Search **SF AI Toolkit**
+4. Click **Install**
+
+The extension activates automatically when you open a folder with \`sfdx-project.json\`.
+
+### Option B: CLI
+
+\`\`\`bash
+npm install -g @sf-ai-toolkit/cli
+\`\`\`
+
+---
+
+## Step 2 — Scan Your Project
+
+**VS Code / Cursor:** Command Palette → **SF AI Toolkit: Scan Salesforce Project**
+
+**CLI:**
+\`\`\`bash
+sf-ai-toolkit scan
+\`\`\`
+
+Note your AI readiness score (0–100) and what is missing.
+
+---
+
+## Step 3 — Apply the Setup
+
+**VS Code / Cursor:** Command Palette → **SF AI Toolkit: Apply Recommended Setup** → select \`core\`
+
+**CLI:**
+\`\`\`bash
+sf-ai-toolkit init --preset core --yes
+\`\`\`
+
+This creates all missing files without touching anything that already exists. Presets: \`core\`, \`agentforce\`, \`lwc\`, \`data-cloud\`, \`experience-cloud\`.
+
+---
+
+## Step 4 — Configure MCP for Your Org
+
+**VS Code / Cursor:** Command Palette → **SF AI Toolkit: Bootstrap MCP Config** → confirm org alias → restart Cursor/VS Code
+
+**CLI:**
+\`\`\`bash
+sf-ai-toolkit bootstrap-mcp
+\`\`\`
+
+This writes \`.cursor/mcp.json\` (Cursor) and \`.mcp.json\` (Claude Code) with the correct Salesforce DX MCP config. To verify, ask Cursor: _"List my Salesforce orgs"_.
+
+---
+
+## Step 5 — Verify
+
+\`\`\`bash
+sf-ai-toolkit doctor
+\`\`\`
+
+Score should be 85+ after a complete setup. The doctor command tells you exactly what to run if anything is missing.
+
+---
+
+## Step 6 — Use Skills in Your AI Tool
+
+**Cursor / Claude Code** — type \`@skill-name\` in chat:
+
+\`\`\`
+@salesforce-apex review this trigger for bulkification issues
+@salesforce-security-review check this class for CRUD/FLS violations
+@salesforce-agentforce how should I structure this Agentforce topic?
+@afv-developing-agentforce scaffold an agent topic for case management
+\`\`\`
+
+**Claude Code slash commands:**
+
+\`\`\`
+/review-security    /validate-deploy    /write-tests
+/create-apex        /create-lwc         /prepare-pr
+\`\`\`
+
+**Windsurf** — \`.windsurfrules\` is read automatically. No extra steps.
+
+**GitHub Copilot** — \`.github/copilot-instructions.md\` is read automatically. No extra steps.
+
+---
+
+## Step 7 — Commit to Git
+
+\`\`\`bash
+git add AI_INSTRUCTIONS.md AGENTS.md CLAUDE.md .windsurfrules .github/ tasks/ .cursor/rules/ .cursor/skills/ .claude/ docs/
+git commit -m "chore: add SF AI Toolkit setup"
+\`\`\`
+
+> Do not commit \`.mcp.json\` or \`.cursor/mcp.json\` if they contain a personal org alias.
+
+---
+
+## Step 8 — Team Setup (Optional)
+
+Publish a team config JSON to a URL and add it to \`.vscode/settings.json\`:
+
+\`\`\`json
+{ "sf-ai-toolkit.teamConfigUrl": "https://raw.githubusercontent.com/your-org/repo/main/ai-kit-team.json" }
+\`\`\`
+
+SF AI Toolkit checks on every workspace open and notifies developers if their setup has drifted.
+
+---
+
+## Troubleshooting
+
+- **Extension not activating** — check that \`sfdx-project.json\` exists at the project root
+- **MCP not working** — restart Cursor after bootstrap; verify alias with \`sf org display\`
+- **Low score after init** — run \`sf-ai-toolkit doctor\` for a full diagnosis
+- **Files not created** — make sure your terminal is in the project root; try \`--dry-run\` first
+
+---
+
+## What's Next
+
+- \`docs/mcp-usage.md\` — advanced MCP config (production read-only, multiple orgs)
+- \`docs/agentforce-vibes-setup.md\` — full Agentforce Vibes setup guide
+- \`docs/afv-library.md\` — install the full official Salesforce AFV Library skills
+`,
+
 };
 
 export function getTemplate(key: string): string {

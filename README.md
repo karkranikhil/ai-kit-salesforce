@@ -8,6 +8,8 @@ SF AI Toolkit is a VS Code/Cursor extension and CLI that standardizes AI workflo
 
 ## Quick Start
 
+> **Full walkthrough:** [docs/getting-started.md](docs/getting-started.md)
+
 ### VS Code / Cursor (recommended)
 
 Install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=NikhilKarkra.sf-ai-toolkit), open your Salesforce DX project, and run:

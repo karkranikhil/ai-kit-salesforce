@@ -1,6 +1,6 @@
 {
   "name": "@sf-ai-toolkit/cli",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Make every Salesforce DX project AI-ready in minutes — scaffolds secure, cross-tool AI workflows for Cursor, Claude, Codex-style agents, and MCP-powered assistants.",
   "license": "MIT",
   "author": {
