@@ -18,7 +18,7 @@ const pick_skill_1 = require("./commands/pick-skill");
 const deploy_preview_1 = require("./commands/deploy-preview");
 const agentforce_scan_1 = require("./commands/agentforce-scan");
 commander_1.program
-    .name('ai-kit-sf')
+    .name('sf-ai-toolkit')
     .description('AI-Kit for Salesforce — Make every Salesforce DX project AI-ready in minutes.')
     .version('0.1.0');
 commander_1.program.addCommand((0, scan_1.scanCommand)());
