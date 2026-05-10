@@ -18,7 +18,7 @@ Or install globally:
 
 ```bash
 npm install -g @sf-ai-toolkit/cli
-ai-kit-sf init
+sf-ai-toolkit init
 ```
 
 ---

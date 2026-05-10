@@ -4068,7 +4068,7 @@ npx skills add forcedotcom/afv-library
 Or use AI-Kit CLI (generates docs and optional setup guide only in MVP):
 
 \`\`\`bash
-ai-kit-sf add-afv-library
+sf-ai-toolkit add-afv-library
 \`\`\`
 
 ## Security Note
@@ -4123,7 +4123,7 @@ Each serves a different need. This guide explains when to use each.
 
 **When to use:** Always — these are safe, bundled, and available offline.
 
-**Install:** Auto-created by \`ai-kit-sf init\` or \`ai-kit-sf add-cursor\`.
+**Install:** Auto-created by \`sf-ai-toolkit init\` or \`sf-ai-toolkit add-cursor\`.
 
 ---
 
@@ -4147,7 +4147,7 @@ npx skills add forcedotcom/afv-library
 Or use AI-Kit to add bundled AFV skill templates:
 
 \`\`\`bash
-ai-kit-sf add-afv-skills
+sf-ai-toolkit add-afv-skills
 \`\`\`
 
 See \`docs/afv-library.md\` for more details.
@@ -4174,7 +4174,7 @@ See \`docs/afv-library.md\` for more details.
 | Auto-install | Yes | Optional |
 | Agentforce focus | Partial | Strong |
 | Enterprise review | Not needed | Recommended |
-| Install | \`ai-kit-sf init\` | \`npx skills add forcedotcom/afv-library\` |
+| Install | \`sf-ai-toolkit init\` | \`npx skills add forcedotcom/afv-library\` |
 `,
 
   // ─── Task management ─────────────────────────────────────────────────────────
@@ -4748,9 +4748,9 @@ For building Agentforce agents and topics, use the skill references:
 
 ## Getting Started
 
-1. Run \`ai-kit-sf scan\` to check your project readiness.
-2. Run \`ai-kit-sf init\` to apply the full setup.
-3. Run \`ai-kit-sf bootstrap-mcp\` to configure your org MCP connection.
+1. Run \`sf-ai-toolkit scan\` to check your project readiness.
+2. Run \`sf-ai-toolkit init\` to apply the full setup.
+3. Run \`sf-ai-toolkit bootstrap-mcp\` to configure your org MCP connection.
 4. Reference skills in Cursor/Claude by typing \`@skill-name\` in the chat.
 `,
 

@@ -17,7 +17,7 @@ import { deployPreviewCommand } from './commands/deploy-preview';
 import { agentforceScanCommand } from './commands/agentforce-scan';
 
 program
-  .name('ai-kit-sf')
+  .name('sf-ai-toolkit')
   .description('AI-Kit for Salesforce — Make every Salesforce DX project AI-ready in minutes.')
   .version('0.1.0');
 

@@ -1,6 +1,6 @@
 {
   "name": "@sf-ai-toolkit/core",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Core engine for SF AI Kit — scanning, planning, safe merging, backups, and file generation.",
   "license": "MIT",
   "author": {
